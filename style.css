@@ -305,11 +305,11 @@ header nav ul li a:hover {
 
 
 /* ==========================================================================
-   ? 2. スマートフォン専用：隔離上書き設定（PC版を保護しつつiPhone版を完全制御）
+   ? 2. スマートフォン専用：上書きリセット（PC版に絶対影響を与えない）
    ========================================================================== */
 @media (max-width: 768px) {
     
-    /* ? 【カーソル完全消去】白の半透明スクエア、特大の矢印など、すべてのカスタムカーソルをスマホでは強制非表示 */
+    /* ? 【カーソル完全消去】スマホ画面上のすべてのカスタムカーソルを強制消去 */
     .custom-square-cursor,
     .custom-arrow-cursor,
     .custom-arrow-cursor.show {
@@ -321,12 +321,12 @@ header nav ul li a:hover {
         height: 0 !important;
     }
     
-    /* 操作感をスマホ本来の標準タップに強制リセット */
+    /* タップ操作をスマホ標準の挙動（どこを触っても即座に反応）に固定 */
     body, html, a, button, img {
         cursor: auto !important;
     }
 
-    /* ? 【モーション・演出消去】ふわっと浮き出るアニメーションやメニューホバー時の演出画像を完全にシャットアウト */
+    /* ? 【モーション消去】切り替え時のふわっとしたディレイや、メニューホバー時の演出画像を無効化 */
     *, *::before, *::after, .page {
         transition: none !important;
         animation: none !important;
@@ -334,7 +334,6 @@ header nav ul li a:hover {
         visibility: visible !important;
     }
     
-    /* メニューホバー時にPCで右側に出る画像演出だけを完全に消去（スマホでは不要なため） */
     .menu-column-overlay,
     .menu-column-overlay.show,
     .menu-column-overlay img {
@@ -343,14 +342,14 @@ header nav ul li a:hover {
         opacity: 0 !important;
     }
 
-    /* 非アクティブな（今選ばれていない）ページセクションだけをパッと非表示にする */
+    /* 非アクティブなページのみパッと非表示 */
     .page:not(.active) {
         display: none !important;
         opacity: 0 !important;
         visibility: hidden !important;
     }
 
-    /* ? 【ホーム・ギャラリー・コンタクト全画面表示の確保】 */
+    /* ? 【ホーム・ギャラリー・コンタクトの全画面構造確保】 */
     .page,
     .fullscreen-bg,
     .gallery-container,
@@ -361,33 +360,83 @@ header nav ul li a:hover {
         opacity: 1 !important;
         width: 100vw !important;
         height: 100vh !important;
-        padding: 0 !important; /* スマホ全画面のために余白をリセット */
+        padding: 0 !important; /* スマホ画面いっぱいに広げるためリセット */
     }
 
-    /* ? 【画像比率の指定】 */
-    /* ホーム画面とコンタクト画面：画像の中央部分だけを使い、画面いっぱいに敷き詰める（cover） */
+    /* 各ページの背景を漆黒に固定 */
+    body, .page, #home, #contact, .gallery-container {
+        background-color: #0b0b0b !important;
+    }
+
+    /* ? 【画像表示・比率】 */
+    /* ホーム画面とコンタクト画面：PCと同じ画像を使用し、画面中央を基準に全画面に敷き詰める */
     #home .fullscreen-bg img,
     #contact .fullscreen-bg img {
+        display: block !important;
         width: 100% !important;
         height: 100% !important;
         object-fit: cover !important; 
-        object-position: center center !important; /* 画像の真ん中を基準にくり抜く */
+        object-position: center center !important;
     }
 
-    /* ギャラリー画面：写真の比率を100%維持して画面中央にぴったり収める（contain） */
+    /* ギャラリー画面：PCと同じ写真を使い、100%比率を維持して中央配置（タップ判定を活かす） */
     .gallery-slide.active {
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-        background-color: #0b0b0b !important;
     }
 
     .gallery-slide img {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
         width: auto !important;
         height: auto !important;
         max-width: 100% !important;
         max-height: 100% !important;
         object-fit: contain !important;
+        pointer-events: none !important; /* ?画像自体が左右タップ（JavaScript）を邪魔しないように設定 */
+    }
+
+    /* ?スマホ版ギャラリーの左右タップ領域の確保 */
+    /* すでにJavaScript側で実装されているPC用のクリック判定が、スマホの画面幅（100vw）でも100%そのまま動作するように領域を開放します */
+    .gallery-container {
+        pointer-events: auto !important;
+    }
+
+    /* ? 【コンタクト画面】メール・インスタグラム等の要素（コンテンツボックス）を画面の「完全中央」に配置 */
+    #contact {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    #contact .content-box {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: 90% !important;
+        padding: 0 20px !important;
+        z-index: 10000 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    /* コンタクトテキストのスマホ用サイズ微調整 */
+    #contact .content-box h1 {
+        font-size: 1.8rem !important;
+        margin-bottom: 16px !important;
+    }
+
+    #contact .content-box p, 
+    #contact .content-box a {
+        font-size: 0.95rem !important;
+        line-height: 2 !important;
     }
 
     /* ? 【レイアウト】画面左上にロゴ・名前を完全固定（iPhone 16上部ノッチ対策） */
@@ -417,7 +466,7 @@ header nav ul li a:hover {
         z-index: 10001 !important;
     }
 
-    /* メニューを「縦並び」かつ「右寄せ」に強制変更 */
+    /* メメニューを「縦並び」かつ「右寄せ」に強制変更 */
     header nav ul {
         display: flex !important;
         flex-direction: column !important;
@@ -433,11 +482,11 @@ header nav ul li a:hover {
     header nav ul li a {
         width: auto !important;
         text-align: right !important;
-        font-size: 0.75rem !important; /* PC版より一回り小さくスマートに */
+        font-size: 0.75rem !important;
         letter-spacing: 0.15em !important;
     }
 
-    /* 作品タイトル（右下のメニューと重ならないよう、スマホ時のみ左下に退避） */
+    /* 作品タイトル（右下のメニューやタップ領域と被らないよう、スマホ時のみ左下に退避） */
     .work-title {
         position: fixed !important;
         bottom: calc(24px + env(safe-area-inset-bottom)) !important;
