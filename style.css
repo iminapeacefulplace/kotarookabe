@@ -302,3 +302,64 @@ header nav ul li a:hover {
     z-index: 98;
     pointer-events: none; /* 特大カーソルのクリック挙動を邪魔しない設定 */
 }
+/* ==========================================================================
+   ? スマートフォン・モバイル用画面の追加設定
+   ========================================================================== */
+@media (max-width: 768px) {
+    
+    /* 1. パソコン用のカスタムカーソル（スクエアや矢印など）を完全に非表示にする */
+    .custom-cursor, 
+    .cursor-square, 
+    .cursor-arrow-left, 
+    .cursor-arrow-right {
+        display: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    
+    /* スマホ本来の矢印（ポインタ）に戻す */
+    body, html, a, button, img {
+        cursor: auto !important;
+    }
+
+    /* 2. メニュー画面などのふわっと出るモーション（アニメーション）を省く */
+    *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    /* 3. レイアウト変更：名前を画面左上に固定 */
+    .site-header, .logo {
+        position: fixed !important;
+        top: 24px !important;
+        left: 24px !important;
+        bottom: auto !important;
+        right: auto !important;
+        transform: none !important;
+    }
+
+    /* 4. レイアウト変更：メニューを画面左下に縦並びで配置 */
+    .site-nav, .menu-container {
+        position: fixed !important;
+        bottom: 24px !important;
+        left: 24px !important;
+        top: auto !important;
+        right: auto !important;
+        transform: none !important;
+    }
+
+    .site-nav ul, .menu-container ul {
+        display: flex !important;
+        flex-direction: column !important; /* 縦並びにする */
+        align-items: flex-start !important;
+        gap: 12px !important; /* メニュー同士の間隔 */
+    }
+
+    /* 5. ホーム画面とコンタクト画面：画像の中央部分だけを100%使う設定 */
+    .home-section, .contact-section, .bg-image-container {
+        width: 100% !important;
+        height: 100% !important;
+        background-size: cover !important;
+        background-position: center !important; /* 画像の真ん中を基準にする */
+    }
+}
