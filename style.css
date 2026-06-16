@@ -407,11 +407,11 @@ body, html {
 
 
 /* ==========================================================================
-   ? 2. スマートフォン（iPhone 16等）専用：完全最適化設定（上書きエリア）
+   ? 2. スマートフォン専用：完全上書きリセット（今回の指示を100%適用）
    ========================================================================== */
 @media (max-width: 768px) {
     
-    /* 【最優先】PC用の特殊カーソルや矢印を完全に、強制消去 */
+    /* ? 【カーソル完全消去】白の半透明スクエア、矢印など全てのカスタムカーソルを強制非表示 */
     .custom-cursor, 
     .cursor-square, 
     .cursor-arrow-left, 
@@ -420,39 +420,91 @@ body, html {
         visibility: hidden !important;
         opacity: 0 !important;
         pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
     }
     
-    /* 操作感をスマホ本来の標準タップに戻す */
+    /* タップ操作をスマホ標準の挙動に固定 */
     body, html, a, button, img {
         cursor: auto !important;
     }
 
-    /* 全てのアニメーション・モーションを強制解除（パッと切り替える） */
+    /* ? 【モーション・画像排除】ふわっと表示される画像を消し、メニュー切り替えのタイムラグをゼロに */
     *, *::before, *::after {
         transition: none !important;
         animation: none !important;
     }
 
-    /* 【レイアウト変更】画面の左上に名前を固定 */
-    /* iPhone 16の上部パーツ（Dynamic Island）に被らないようセーフエリアを計算 */
-    .site-header, .logo, h1 {
+    /* HomeとContactの背景画像をスマホ版では完全に非表示（真っ黒な空間）にする */
+    .home-section, .contact-section, .bg-image-container {
+        background-image: none !important;
+        background-color: #000 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+    }
+
+    /* ? 【レイアウト】画面左上に名前を固定 */
+    .site-header {
         position: fixed !important;
-        top: calc(24px + env(safe-area-inset-top)) !important;
+        top: calc(24px + env(safe-area-inset-top)) !important; /* ノッチ対策 */
         left: 24px !important;
         bottom: auto !important;
         right: auto !important;
         transform: none !important;
-        text-align: left !important;
         z-index: 9999 !important;
     }
 
-    /* 【レイアウト変更】画面の左下にメニューを縦並びで固定 */
-    /* iPhone 16の下部ホームバーに被らないようセーフエリアを計算 */
-    .site-nav, .menu-container, nav {
+    .site-header h1 {
+        font-size: 18px !important;
+        text-align: left !important;
+    }
+
+    /* ? 【レイアウト】画面右下にメニューの3つを固定 */
+    .site-nav {
+        position: fixed !important;
+        bottom: calc(24px + env(safe-area-inset-bottom)) !important; /* ホームバー対策 */
+        right: 24px !important;
+        left: auto !important;
+        top: auto !important;
+        transform: none !important;
+        z-index: 9999 !important;
+    }
+
+    /* ? 【レイアウト】メニューを「縦並び」に強制変更 */
+    .site-nav ul {
+        display: flex !important;
+        flex-direction: column !important; 
+        align-items: flex-end !important; /* 右端に揃える */
+        gap: 12px !important; /* 縦の間隔 */
+        list-style: none !important;
+    }
+
+    /* ? 【フォント】メニューの文字サイズをやや小さく設定 */
+    .site-nav a {
+        font-size: 14px !important; /* 16pxから14pxへ縮小 */
+        letter-spacing: 0.05em !important;
+    }
+
+    /* ギャラリー画面（中央配置・比率100%維持） */
+    .gallery-section, .gallery-wrapper, .slide-container {
+        width: 100vw !important;
+        height: 100vh !important;
+        background-color: #000 !important;
+    }
+
+    .slide-container img {
+        max-width: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain !important;
+    }
+
+    /* 作品名はメニューの邪魔にならないよう、左下に配置 */
+    .work-title {
         position: fixed !important;
         bottom: calc(24px + env(safe-area-inset-bottom)) !important;
         left: 24px !important;
-        top: auto !important;
         right: auto !important;
-        transform: none !important;
+        font-size: 12px !important;
         z-index: 9999 !important;
+    }
+}
