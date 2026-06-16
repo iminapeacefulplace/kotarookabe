@@ -1,0 +1,304 @@
+/* ==========================================
+   1. 基本の共通設定 ＆ リセット
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #0b0b0b;
+    color: #ffffff;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    overflow-x: hidden;
+    /* ?ブラウザ標準の矢印カーソルを画面全体で完全に非表示にする */
+    cursor: none !important; 
+}
+
+/* ?リンクやボタンの上に乗ったときも、標準カーソル（指マーク等）が出ないように強制非表示 */
+a, button, [role="button"], input[type="submit"] {
+    cursor: none !important;
+}
+
+/* ==========================================
+   2. カスタムカーソル（スクエア）
+   ========================================== */
+.custom-square-cursor {
+    width: 8px;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.6);
+    border: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 10000;
+    transform: translate(-50%, -50%);
+    will-change: transform, left, top;
+    -webkit-transform: translate(-50%, -50%);
+    transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+    opacity: 1;
+}
+
+/* ==========================================
+   3. ギャラリー用矢印カスタムカーソル
+   ========================================== */
+.custom-arrow-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    will-change: transform, left, top;
+    -webkit-transform: translate(-50%, -50%);
+    
+    /* ?ギャラリー時の超特大サイズ（7rem） */
+    font-size: 3rem; 
+    
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: #ffffff;
+    opacity: 0; 
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.custom-arrow-cursor.show {
+    opacity: 0.3; 
+    visibility: visible;
+}
+
+/* ==========================================
+   4. グローバルナビゲーション（ヘッダー）
+   ========================================== */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 30px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 101; 
+}
+
+header .logo {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+}
+
+header nav ul {
+    display: flex;
+    list-style: none;
+}
+
+header nav ul li {
+    margin-left: 0;
+}
+
+header nav ul li a {
+    display: inline-block;
+    width: 100px;       
+    text-align: center; 
+    color: #ffffff;     
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    opacity: 0.4;
+    transition: opacity 0.3s;
+}
+
+header nav ul li a.active,
+header nav ul li a:hover {
+    opacity: 1;
+}
+
+/* ==========================================
+   5. 半透明写真演出（メニューホバー時）
+   ========================================== */
+.menu-column-overlay {
+    position: fixed;
+    top: 0;
+    right: 0; 
+    width: calc(5% + 300px); 
+    height: 100vh;
+    z-index: 99; 
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(20px);
+    transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.5s;
+}
+
+.menu-column-overlay img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5; 
+}
+
+.menu-column-overlay.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+/* ==========================================
+   6. ページセクション ＆ フルスクリーン画像共通設定
+   ========================================== */
+.page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease, visibility 0.8s;
+    padding: 120px 5% 50px 5%;
+}
+
+.page.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 各画面の背景共通枠 */
+.fullscreen-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 96; 
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 通常の画像表示（ギャラリー、コンタクトなど）：比率を維持してぴったり収める */
+.fullscreen-bg img {
+    width: 100%;
+    height: 100%;
+    object-src: contain;
+    object-fit: contain; 
+}
+
+/* ?ホーム画面とコンタクト画面：写真を端から端まで（全画面に隙間なく）敷き詰める設定 */
+#home .fullscreen-bg img,
+#contact .fullscreen-bg img {
+    object-fit: cover; 
+}
+
+/* ?ギャラリー内の各写真：画面の端から端まで100%（隙間なく）敷き詰める設定 */
+.gallery-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* contain から cover に変更 */
+}
+
+/* 写真の上に重なるテキストボックス */
+.content-box {
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    z-index: 97; 
+}
+
+.content-box h1 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8); 
+}
+
+.content-box p {
+    font-size: 1rem;
+    line-height: 1.8;
+    opacity: 0.9;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+}/* ==========================================
+   ギャラリー専用：1枚ずつ左右スライド表示にする設定
+   ========================================== */
+/* ==========================================
+   ギャラリー専用：1枚ずつその場でパッと切り替える設定
+   ========================================== */
+.gallery-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 96;
+    overflow: hidden;
+}
+
+/* ?スライド（アニメーション）を完全に排除し、その場に重ねるための親枠 */
+.gallery-track {
+    display: block !important; 
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+/* ?各写真の枠を「透明・非表示」の状態で同じ場所にすべて重ねておきます */
+.gallery-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    opacity: 0;             /* 最初は全員透明に */
+    visibility: hidden;     /* クリックもすり抜ける状態に */
+    transition: none !important; /* ?スライドのアニメーションを完全に無効化 */
+}
+
+/* ?JavaScriptで「active」という目印がついた画像だけを、その場にパッと100%表示します */
+.gallery-slide.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ?【最重要修正】写真の比率を100%維持し、画面内に全体が収まるように表示 */
+.gallery-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* ?cover から contain に変更。これで比率が完全に保たれます */
+}
+/* ==========================================
+   ギャラリー作品名（タイトル）：左下・小さめ配置設定
+   ========================================== */
+.gallery-slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.work-title {
+    position: absolute;
+    /* ?中央配置を解除し、画面の左下を基準に配置します */
+    bottom: 30px;  /* 画面の下端から30px上の位置 */
+    left: 40px;    /* 画面の左端から40px右の位置（メニューの並び等と馴染む余白） */
+    transform: none; /* 中央寄せの計算をリセット */
+    
+    /* ?文字のサイズを「小さく」調整 */
+    font-size: 0.8rem; /* 1rem から 0.8rem にして一回り小さく洗練されたサイズに */
+    
+    color: #ffffff;
+    font-weight: 300;
+    letter-spacing: 0.15em; /* 文字の間隔を広げて品よく */
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6); /* どんな背景写真でも文字が読めるように微調整 */
+    z-index: 98;
+    pointer-events: none; /* 特大カーソルのクリック挙動を邪魔しない設定 */
+}
