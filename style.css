@@ -228,9 +228,7 @@ header nav ul li a:hover {
     opacity: 0.9;
     text-shadow: 0 2px 10px rgba(0,0,0,0.8);
 }
-/* ==========================================
-   ギャラリー専用：1枚ずつ左右スライド表示にする設定
-   ========================================== */
+
 /* ==========================================
    ギャラリー専用：1枚ずつその場でパッと切り替える設定
    ========================================== */
@@ -276,6 +274,7 @@ header nav ul li a:hover {
     height: 100%;
     object-fit: contain; /* ?cover から contain に変更。これで比率が完全に保たれます */
 }
+
 /* ==========================================
    ギャラリー作品名（タイトル）：左下・小さめ配置設定
    ========================================== */
@@ -306,11 +305,11 @@ header nav ul li a:hover {
 
 
 /* ==========================================================================
-   ? 2. スマートフォン（iPhone 16等）専用：完全隔離・上書きリセット
+   ? 2. スマートフォン専用：隔離上書き設定（PC版を保護しつつiPhone版を完全制御）
    ========================================================================== */
 @media (max-width: 768px) {
     
-    /* ? 【カーソル完全消去】白の半透明スクエア、特大の矢印カーソルを強制消去 */
+    /* ? 【カーソル完全消去】白の半透明スクエア、特大の矢印など、すべてのカスタムカーソルをスマホでは強制非表示 */
     .custom-square-cursor,
     .custom-arrow-cursor,
     .custom-arrow-cursor.show {
@@ -322,12 +321,12 @@ header nav ul li a:hover {
         height: 0 !important;
     }
     
-    /* スマホ本来のタップ操作に強制固定 */
+    /* 操作感をスマホ本来の標準タップに強制リセット */
     body, html, a, button, img {
         cursor: auto !important;
     }
 
-    /* ? 【モーション完全停止】メニュー選択時のふわっと出るフェードやタイムラグを完全に消去 */
+    /* ? 【モーション・演出消去】ふわっと浮き出るアニメーションやメニューホバー時の演出画像を完全にシャットアウト */
     *, *::before, *::after, .page {
         transition: none !important;
         animation: none !important;
@@ -335,29 +334,60 @@ header nav ul li a:hover {
         visibility: visible !important;
     }
     
-    /* activeがついていない非アクティブなページだけをパッと隠す */
+    /* メニューホバー時にPCで右側に出る画像演出だけを完全に消去（スマホでは不要なため） */
+    .menu-column-overlay,
+    .menu-column-overlay.show,
+    .menu-column-overlay img {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+
+    /* 非アクティブな（今選ばれていない）ページセクションだけをパッと非表示にする */
     .page:not(.active) {
         display: none !important;
         opacity: 0 !important;
         visibility: hidden !important;
     }
 
-    /* ? 【画像表示の排除】メニューを押したときに出る画像や、Home・Contactの背景画像を完全に消去して真っ黒に */
-    .menu-column-overlay,
-    .menu-column-overlay.show,
-    .menu-column-overlay img,
+    /* ? 【ホーム・ギャラリー・コンタクト全画面表示の確保】 */
+    .page,
     .fullscreen-bg,
-    #home .fullscreen-bg,
-    #contact .fullscreen-bg {
-        display: none !important;
-        visibility: hidden !important;
-        background-image: none !important;
-        opacity: 0 !important;
+    .gallery-container,
+    .gallery-track,
+    .gallery-slide {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        padding: 0 !important; /* スマホ全画面のために余白をリセット */
     }
 
-    /* 各ページの背景を強制的に真っ黒に固定 */
-    body, .page, #home, #contact, .gallery-container {
+    /* ? 【画像比率の指定】 */
+    /* ホーム画面とコンタクト画面：画像の中央部分だけを使い、画面いっぱいに敷き詰める（cover） */
+    #home .fullscreen-bg img,
+    #contact .fullscreen-bg img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important; 
+        object-position: center center !important; /* 画像の真ん中を基準にくり抜く */
+    }
+
+    /* ギャラリー画面：写真の比率を100%維持して画面中央にぴったり収める（contain） */
+    .gallery-slide.active {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
         background-color: #0b0b0b !important;
+    }
+
+    .gallery-slide img {
+        width: auto !important;
+        height: auto !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        object-fit: contain !important;
     }
 
     /* ? 【レイアウト】画面左上にロゴ・名前を完全固定（iPhone 16上部ノッチ対策） */
@@ -403,30 +433,11 @@ header nav ul li a:hover {
     header nav ul li a {
         width: auto !important;
         text-align: right !important;
-        font-size: 0.75rem !important; /* PC版0.85remから0.75remへ縮小 */
+        font-size: 0.75rem !important; /* PC版より一回り小さくスマートに */
         letter-spacing: 0.15em !important;
     }
 
-    /* ギャラリー画面（中央配置・比率100%維持） */
-    .gallery-container, .gallery-track, .gallery-slide {
-        width: 100vw !important;
-        height: 100vh !important;
-        padding: 0 !important;
-    }
-
-    .gallery-slide.active {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-    }
-
-    .gallery-slide img {
-        max-width: 100% !important;
-        max-height: 100% !important;
-        object-fit: contain !important; /* スマホでも比率を100%維持 */
-    }
-
-    /* 作品タイトル（右下のメニューと被らないよう、スマホ時のみ左下に退避） */
+    /* 作品タイトル（右下のメニューと重ならないよう、スマホ時のみ左下に退避） */
     .work-title {
         position: fixed !important;
         bottom: calc(24px + env(safe-area-inset-bottom)) !important;
