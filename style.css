@@ -257,9 +257,9 @@ header nav ul li a:hover {
     left: 0;
     width: 100vw !important;
     height: 100vh !important;
-    opacity: 0;             /* 最初は全員透明に */
-    visibility: hidden;     /* クリックもすり抜ける状態に */
-    transition: none !important; /* ?スライドのアニメーションを完全に無効化 */
+    opacity: 0;             
+    visibility: hidden;     
+    transition: none !important; 
 }
 
 /* ?JavaScriptで「active」という目印がついた画像だけを、その場にパッと100%表示します */
@@ -287,14 +287,11 @@ header nav ul li a:hover {
 
 .work-title {
     position: absolute;
-    /* ?中央配置を解除し、画面の左下を基準に配置します */
     bottom: 30px;  
     left: 40px;    
     transform: none; 
     
-    /* ?文字のサイズを「小さく」調整 */
     font-size: 0.8rem; 
-    
     color: #ffffff;
     font-weight: 300;
     letter-spacing: 0.15em; 
@@ -326,7 +323,7 @@ header nav ul li a:hover {
         cursor: auto !important;
     }
 
-    /* ? 【モーション消去】切り替え時のふわっとしたディレイや、メニューホバー時の演出画像を無効化 */
+    /* ? 【モーション消去】切り替え時のディレイや、メニューホバー時の演出画像を無効化 */
     *, *::before, *::after, .page {
         transition: none !important;
         animation: none !important;
@@ -362,7 +359,7 @@ header nav ul li a:hover {
         padding: 0 !important; 
     }
 
-    /* ?【重複表示対策】アクティブなギャラリースライドのみ表示し、非アクティブなスライドは完全に隠す */
+    /* 【重複表示対策】アクティブなギャラリースライドのみ表示し、他は完全に隠す */
     .gallery-slide {
         display: none !important;
         opacity: 0 !important;
@@ -377,7 +374,7 @@ header nav ul li a:hover {
     }
 
     /* ? 【画像表示・比率】 */
-    /* ホーム画面とコンタクト画面：PCと同じ画像を使用し、画面中央を基準に全画面に敷き詰める */
+    /* ホーム画面とコンタクト画面：画像の中央基準で画面いっぱいに敷き詰める */
     #home .fullscreen-bg img,
     #contact .fullscreen-bg img {
         display: block !important;
@@ -387,32 +384,33 @@ header nav ul li a:hover {
         object-position: center center !important;
     }
 
-    /* ? ギャラリー画面：アクティブな1枚だけを「やや上部」に表示させる設定 */
+    /* ? ギャラリー画面：アクティブな1枚をレイアウトするための親枠設定 */
     .gallery-slide.active {
         display: flex !important;
         flex-direction: column !important;
-        justify-content: flex-start !important; /* 上基準に整列 */
+        justify-content: flex-start !important; /* 上を基準にして要素を並べる */
         align-items: center !important;
         visibility: visible !important;
         opacity: 1 !important;
+        position: relative !important;
     }
 
+    /* 写真のスタイル設定（上部70%に制限して下部にボタン余白を作る） */
     .gallery-slide img {
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
         width: auto !important;
         height: auto !important;
-        max-width: 100% !important;
-        /* ?高さを画面の上側70%に絞り、下部に携帯ゲーム風ボタンの空間を作る */
-        max-height: 65vh !important; 
-        margin-top: calc(90px + env(safe-area-inset-top)) !important; /* 上部ロゴとの被り防止 */
+        max-width: 90% !important; /* 作品タイトルと揃えるため左右に10%の余白を設ける */
+        max-height: 60vh !important; /* 作品タイトル用のスペースを確保するために微調整 */
+        margin-top: calc(90px + env(safe-area-inset-top)) !important; 
         object-fit: contain !important;
         pointer-events: none !important; 
     }
 
-    /* ? 携帯ゲーム風：画面下部に「??」と「??」の切り替え用物理風ボタンを配置 */
-    /* PC用の左右50%ずつのクリック判定判定領域を活かしたまま、その上にボタンを浮かび上がらせます */
+    /* ? 携帯ゲーム風：画面下部に完全スクエア（正方形）の「<」と「>」ボタンを配置 */
+    /* iPhoneのあらゆるブラウザで文字化けしない標準文字コード「<」「>」へ修正 */
     .gallery-container {
         pointer-events: auto !important;
     }
@@ -420,31 +418,54 @@ header nav ul li a:hover {
     .gallery-container::before,
     .gallery-container::after {
         position: fixed !important;
-        bottom: calc(50px + env(safe-area-inset-bottom)) !important; /* 画面下部ホームバーの少し上 */
-        font-size: 1.8rem !important;
-        color: rgba(255, 255, 255, 0.7) !important;
-        background-color: rgba(255, 255, 255, 0.05) !important; /* レトロなボタン枠枠 */
+        bottom: calc(50px + env(safe-area-inset-bottom)) !important; 
+        font-size: 1.2rem !important; /* 文字化け防止に伴いシャープなサイズに調整 */
+        font-family: monospace, sans-serif !important; /* iPhoneでも確実に等幅表示 */
+        color: rgba(255, 255, 255, 0.8) !important;
+        background-color: rgba(255, 255, 255, 0.05) !important; 
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        width: 75px !important;
-        height: 50px !important;
+        
+        /* ?完全スクエア（縦横54pxのきれいな正方形）に変更 */
+        width: 54px !important;
+        height: 54px !important;
+        border-radius: 0px !important; /* ?角丸を0にして完全なスクエアに */
+        
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-        border-radius: 6px !important;
         z-index: 9999 !important; 
-        pointer-events: none !important; /* タップ自体は背後の既存JavaScript判定にすり抜け浸透 */
+        pointer-events: none !important; /* タップ自体は背後の既存JavaScript判定に貫通 */
     }
 
-    /* 左矢印ボタン（??）の位置：画面中央からやや左 */
+    /* 左スクエアボタン（<）の位置 */
     .gallery-container::before {
-        content: "?" !important;
-        left: calc(50% - 95px) !important;
+        content: "<" !important;
+        left: calc(50% - 70px) !important;
     }
 
-    /* 右矢印ボタン（??）の位置：画面中央からやや右 */
+    /* 右スクエアボタン（>）の位置 */
     .gallery-container::after {
-        content: "?" !important;
-        left: calc(50% + 20px) !important;
+        content: ">" !important;
+        left: calc(50% + 16px) !important;
+    }
+
+    /* ?? 【最重要修正】作品タイトルを固定配置から「写真のすぐ左下」に密着表示 */
+    .work-title {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        
+        /* 写真の横幅（max-width: 90%）と完全に一致させるための調整 */
+        width: 90% !important; 
+        text-align: left !important;
+        
+        /* 写真との美しい間隔 */
+        margin-top: 14px !important; 
+        
+        font-size: 0.75rem !important;
+        letter-spacing: 0.1em !important;
+        z-index: 10002 !important;
+        transform: none !important;
     }
 
 
@@ -471,7 +492,6 @@ header nav ul li a:hover {
         align-items: center !important;
     }
 
-    /* コンタクトテキストのスマホ用サイズ微調整 */
     #contact .content-box h1 {
         font-size: 1.8rem !important;
         margin-bottom: 16px !important;
@@ -510,7 +530,6 @@ header nav ul li a:hover {
         z-index: 10001 !important;
     }
 
-    /* メメニューを「縦並び」かつ「右寄せ」に強制変更 */
     header nav ul {
         display: flex !important;
         flex-direction: column !important;
@@ -528,15 +547,5 @@ header nav ul li a:hover {
         text-align: right !important;
         font-size: 0.75rem !important;
         letter-spacing: 0.15em !important;
-    }
-
-    /* 作品タイトル（右下のメニューや矢印ボタンと被らないよう、スマホ時のみ左下に退避） */
-    .work-title {
-        position: fixed !important;
-        bottom: calc(24px + env(safe-area-inset-bottom)) !important;
-        left: 24px !important;
-        right: auto !important;
-        font-size: 0.75rem !important;
-        z-index: 10002 !important;
     }
 }
