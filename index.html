@@ -12,7 +12,7 @@
            🕹️ 画面レイアウト固定・被り・挙動の完全修正スタイル
            ========================================================================== */
         
-        /* 💡 全てのページを画面に100%完全固定（スワイプによる画像やゲームのズレを防止） */
+        /* 全てのページを画面に100%完全固定 */
         .page {
             position: fixed !important;
             top: 0;
@@ -26,12 +26,12 @@
             display: block;
         }
 
-        /* 💡 PCホバー演出画像を「画面右側」へ配置変更 ＆ 横幅を拡張 */
+        /* PCホバー演出画像を「画面右側」へ配置変更 ＆ 横幅を拡張 */
         @media (min-width: 769px) {
             .menu-column-overlay {
-                width: 35% !important; /* 横幅を大きく拡張 */
-                left: auto !important; /* 左基準を解除 */
-                right: 0 !important;   /* 右端にぴったり張り付け */
+                width: 35% !important; 
+                left: auto !important; 
+                right: 0 !important;   
             }
             
             /* ゲーム画面：PC用レイアウト（画面中央寄せ） */
@@ -104,23 +104,39 @@
             margin-bottom: 8px;
         }
 
-        /* 💡 Contactセクション専用：画面の完全な中央に配置する設定 */
+        /* 💡 Contactセクション専用：最前面で画面の完全な中央に文字を配置する設定 */
         .contact-center-wrap {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 24px;
-            z-index: 10;
-            width: auto;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 30px !important;
+            z-index: 999 !important; 
+            width: 100vw;
             text-align: center;
         }
+        
+        .contact-item-link {
+            display: inline-block !important;
+            color: #ffffff !important;         
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8); 
+            text-decoration: none !important;
+            font-size: 1.5rem !important;      
+            font-weight: 300 !important;
+            opacity: 0.95 !important;
+            transition: opacity 0.3s, transform 0.3s;
+            letter-spacing: 0.2em !important;
+        }
+        .contact-item-link:hover {
+            opacity: 1 !important;
+            transform: scale(1.05);
+        }
 
-        /* 💡 スマートフォン版：ヘッダーボタン配置・ゲーム被り防止・要素順序の最適化 */
+        /* スマートフォン版：ヘッダーボタン配置・ゲーム被り防止・要素順序の最適化 */
         @media (max-width: 768px) {
             header {
                 position: fixed;
@@ -141,14 +157,12 @@
                 letter-spacing: 0.05em;
             }
 
-            /* スマホ用ヘッダー内のコントロールコンテナ */
             .header-mobile-controls {
-                display: none; /* 初期非表示。Gameセクション有効時にJSでflex化 */
+                display: none; 
                 align-items: center;
                 gap: 12px;
             }
 
-            /* 再生マークを内包するスタート・ストップボタングループ */
             .header-mobile-play-group {
                 display: flex;
                 border: 1px solid rgba(255, 255, 255, 0.3);
@@ -186,7 +200,6 @@
                 display: none !important;
             }
             
-            /* ラッパー：ロゴのすぐ下にゲーム画面を安全に配置 */
             .game-wrapper {
                 display: flex;
                 flex-direction: column;
@@ -199,14 +212,12 @@
                 gap: 10px;
             }
 
-            /* テトリス本体の縮小と位置固定 */
             .game-container {
                 transform: scale(0.82); 
                 transform-origin: top center;
                 margin: 0 auto;
             }
 
-            /* スマホ用下部十字キー：最下部に固定して被りを絶対回避 */
             .game-controls-mobile {
                 position: fixed;
                 bottom: 30px;
@@ -219,7 +230,6 @@
                 z-index: 100;
             }
 
-            /* スマホ用難易度ポップアップ（モーダル） */
             .mobile-modal-overlay {
                 position: fixed;
                 top: 0;
@@ -295,7 +305,10 @@
     <main>
         <section id="home" class="page active">
             <div class="fullscreen-bg"><img src="main-home.jpg" alt="Homeメイン画像"></div>
-            <div class="content-box"><h1></h1><p></p></div>
+            <div class="content-box">
+                <h1></h1>
+                <p></p>
+            </div>
         </section>
 
         <section id="gallery" class="page">
@@ -312,16 +325,16 @@
                     <div class="gallery-slide"><img src="gallery-09.jpg" alt="作品9"><div class="work-title">「intermediation」</div></div>
                     <div class="gallery-slide"><img src="gallery-10.jpg" alt="作品10"><div class="work-title">「intermediation」</div></div>
                     <div class="gallery-slide"><img src="gallery-11.jpg" alt="作品11"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-12.jpg" alt="作品12"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-13.jpg" alt="作品13"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-14.jpg" alt="作品14"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-15.jpg" alt="作品15"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-16.jpg" alt="作品16"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-17.jpg" alt="作品17"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-18.jpg" alt="作品18"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-19.jpg" alt="作品19"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-20.jpg" alt="作品20"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-21.jpg" alt="作品21"><div class="work-title">「intermediation」</div></div>
+                    <div class="gallery-slide"><img src="gallery-12.jpg" alt="作品12"><div class="work-title">split-image</div></div>
+                    <div class="gallery-slide"><img src="gallery-13.jpg" alt="作品13"><div class="work-title">split-image</div></div>
+                    <div class="gallery-slide"><img src="gallery-14.jpg" alt="作品14"><div class="work-title">split-image</div></div>
+                    <div class="gallery-slide"><img src="gallery-15.jpg" alt="作品15"><div class="work-title">split-image</div></div>
+                    <div class="gallery-slide"><img src="gallery-16.jpg" alt="作品16"><div class="work-title">split-image</div></div>
+                    <div class="gallery-slide"><img src="gallery-17.jpg" alt="作品17"><div class="work-title">split-image</div></div>
+                    <div class="gallery-slide"><img src="gallery-18.jpg" alt="作品18"><div class="work-title">split-image</div></div>
+                    <div class="gallery-slide"><img src="gallery-19.jpg" alt="作品19"><div class="work-title">split-image</div></div>
+                    <div class="gallery-slide"><img src="gallery-20.jpg" alt="作品20"><div class="work-title">split-image</div></div>
+                    <div class="gallery-slide"><img src="gallery-21.jpg" alt="作品21"><div class="work-title">split-image</div></div>
                 </div>
             </div>
         </section>
@@ -407,10 +420,9 @@
         <section id="contact" class="page">
             <div class="fullscreen-bg"><img src="main-contact.jpg" alt="Contactメイン画像"></div>
             
-            <!-- 💡 ここが完全に画面中央に表示されるように戻したパーツです -->
             <div class="contact-center-wrap">
-                <a href="mailto:ommatokoita@gmail.com" class="contact-item" style="display: block; color: #fff; text-decoration: none; font-size: 1.2rem; opacity: 0.8; transition: opacity 0.3s; letter-spacing: 0.15em;">Email</a>
-                <a href="#" onclick="window.open('https://instagram.com/iminapeacefulplace', '_blank', 'noopener,noreferrer'); return false;" class="contact-item" style="display: block; color: #fff; text-decoration: none; font-size: 1.2rem; opacity: 0.8; transition: opacity 0.3s; letter-spacing: 0.15em;">Instagram</a>
+                <a href="mailto:ommatokoita@gmail.com" class="contact-item-link">Email</a>
+                <a href="#" onclick="window.open('https://instagram.com/iminapeacefulplace', '_blank', 'noopener,noreferrer'); return false;" class="contact-item-link">Instagram</a>
             </div>
         </section>
     </main>
@@ -422,8 +434,8 @@
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     const customSquareCursor = document.querySelector('.custom-square-cursor');
-    const customArrowCursorLeft = document.querySelector('.custom-arrow-cursor.left');
-    const customArrowCursorRight = document.querySelector('.custom-arrow-cursor.right');
+    const customArrowCursorLeft = document.querySelectorAll('.custom-arrow-cursor.left');
+    const customArrowCursorRight = document.querySelectorAll('.custom-arrow-cursor.right');
     const gallerySection = document.getElementById('gallery');
     const headerArea = document.querySelector('header');
     const mobileHeaderActions = document.getElementById('mobile-header-actions');
@@ -448,7 +460,6 @@
             const targetPage = document.getElementById(targetId);
             if (targetPage) targetPage.classList.add('active');
 
-            // スマホ版：Gameセクションの時だけヘッダーにコントロール群を表示
             if (targetId === 'game') {
                 if (mobileHeaderActions) mobileHeaderActions.style.display = 'flex';
                 initTetris();
@@ -473,18 +484,27 @@
     document.addEventListener('mousemove', (e) => {
         const mouseX = e.clientX; const mouseY = e.clientY; const windowWidth = window.innerWidth; lastMouseX = mouseX;
         if (customSquareCursor) { customSquareCursor.style.left = mouseX + 'px'; customSquareCursor.style.top = mouseY + 'px'; }
-        if (customArrowCursorLeft && customArrowCursorRight) {
-            customArrowCursorLeft.style.left = mouseX + 'px'; customArrowCursorLeft.style.top = mouseY + 'px';
-            customArrowCursorRight.style.left = mouseX + 'px'; customArrowCursorRight.style.top = mouseY + 'px';
+        
+        const arrowLeft = document.querySelector('.custom-arrow-cursor.left');
+        const arrowRight = document.querySelector('.custom-arrow-cursor.right');
+        if (arrowLeft && arrowRight) {
+            arrowLeft.style.left = mouseX + 'px'; arrowLeft.style.top = mouseY + 'px';
+            arrowRight.style.left = mouseX + 'px'; arrowRight.style.top = mouseY + 'px';
         }
         if (gallerySection && gallerySection.classList.contains('active') && !isHoveringMenu) {
             if (customSquareCursor) customSquareCursor.style.opacity = '0'; 
-            if (mouseX < windowWidth / 2) { customArrowCursorLeft.classList.add('show'); customArrowCursorRight.classList.remove('show'); }
-            else { customArrowCursorRight.classList.add('show'); customArrowCursorLeft.classList.remove('show'); }
+            if (mouseX < windowWidth / 2) { 
+                if(arrowLeft) arrowLeft.classList.add('show'); 
+                if(arrowRight) arrowRight.classList.remove('show'); 
+            }
+            else { 
+                if(arrowRight) arrowRight.classList.add('show'); 
+                if(arrowLeft) arrowLeft.classList.remove('show'); 
+            }
         } else {
             if (customSquareCursor) customSquareCursor.style.opacity = '1'; 
-            if (customArrowCursorLeft) customArrowCursorLeft.classList.remove('show');
-            if (customArrowCursorRight) customArrowCursorRight.classList.remove('show');
+            if (arrowLeft) arrowLeft.classList.remove('show');
+            if (arrowRight) arrowRight.classList.remove('show');
         }
     });
 
@@ -499,9 +519,6 @@
         }
     });
 
-    // ==========================================================================
-    // 📱 スマホ版ヘッダーオプションボタン ＆ ポップアップ制御
-    // ==========================================================================
     const mobileModal = document.getElementById('mobile-modal');
     const btnHeaderOption = document.getElementById('btn-header-option');
     const modalCloseBtn = document.getElementById('btn-modal-close');
@@ -552,7 +569,7 @@
                 this.tetromino.push([ [0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0] ]);
                 this.tetromino.push([ [0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0] ]);
             }
-            this.activeTetromino = this.tetromino[0]; this.tetrominoN = 0; this.x = 3; this.y = -2;
+            this.activeTetromino = this.tetromino[0]; this.tetrominoN N = 0; this.x = 3; this.y = -2;
         }
         transposeAndReverse(matrix) {
             let n = matrix.length; let temp = Array.from({length: n}, () => Array(n).fill(0));
@@ -688,9 +705,6 @@
         }
     }
 
-    // ==========================================================================
-    // 🎮 コントロールイベント定義（PC・スマホ同期処理）
-    // ==========================================================================
     const modeButtons = document.querySelectorAll('.mode-btn');
     modeButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
