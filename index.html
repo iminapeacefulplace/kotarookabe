@@ -9,10 +9,17 @@
     <link rel="stylesheet" href="style.css">
     <style>
         /* ==========================================================================
-           🕹️ 画面レイアウト固定・被り・挙動の完全修正スタイル
+           🕹️ 画面レイアウト完全固定・センタリング・被り解消スタイル
            ========================================================================== */
         
-        /* 全てのページを画面に100%完全固定 */
+        /* 💡 画面の上下スワイプによる画像・ゲームのガタつきズレを全画面で100%完全固定 */
+        html, body {
+            overflow: hidden !important;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
         .page {
             position: fixed !important;
             top: 0;
@@ -26,49 +33,56 @@
             display: block;
         }
 
-        /* PCホバー演出画像を「画面右側」へ配置変更 ＆ 横幅を拡張 */
+        /* 💡【修正】PCホバー演出画像を「画面右側」へ配置 ＆ 横幅拡張 */
         @media (min-width: 769px) {
             .menu-column-overlay {
-                width: 35% !important; 
-                left: auto !important; 
-                right: 0 !important;   
+                width: 35% !important;
+                left: auto !important;
+                right: 0 !important;
             }
             
-            /* ゲーム画面：PC用レイアウト（画面中央寄せ） */
+            /* 💡【修正】ゲーム画面：テトリスを画面の中央に完全配置 */
             .game-wrapper {
+                position: relative;
                 display: flex;
                 flex-direction: row;
                 align-items: center;
                 justify-content: center;
-                gap: 40px;
-                width: 100vw;
+                width: 100%;
                 height: 100vh;
-                max-width: none;
                 margin: 0 auto;
-                padding-top: 0;
+                box-sizing: border-box;
             }
             .game-container {
-                margin: 0; 
+                margin: 0 auto; /* 中央寄せ */
+                display: flex;
+                align-items: flex-start;
             }
+            /* サイドバーを右側に絶対配置して中央配置に干渉させない */
             .game-sidebar-right {
+                position: absolute;
+                right: 10%;
+                top: 50%;
+                transform: translateY(-50%);
                 display: flex;
                 flex-direction: column;
                 gap: 25px;
-                width: 240px;
+                width: 220px;
                 text-align: left;
             }
-            .header-mobile-controls, .mobile-modal-overlay {
+            .header-mobile-controls, .mobile-modal-overlay, .game-controls-mobile {
                 display: none !important;
             }
         }
 
-        /* システム共通ボタンスタイル（難易度・PC用システム） */
+        /* システム共通ボタンスタイル */
         .btn-group-row {
             display: flex;
             gap: 10px;
             width: 100%;
         }
         .mode-btn, .action-btn {
+            flex: 1;
             background: transparent;
             color: rgba(255, 255, 255, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -79,12 +93,8 @@
             transition: all 0.3s ease;
         }
         .action-btn {
-            flex: 1;
             color: #fff;
             border-color: rgba(255, 255, 255, 0.4);
-        }
-        .mode-btn {
-            flex: 1;
         }
         .mode-btn:hover, .action-btn:hover {
             background: rgba(255, 255, 255, 0.1);
@@ -104,132 +114,88 @@
             margin-bottom: 8px;
         }
 
-        /* 💡 Contactセクション専用：最前面で画面の完全な中央に文字を配置する設定 */
-        .contact-center-wrap {
-            position: absolute !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 30px !important;
-            z-index: 999 !important; 
-            width: 100vw;
+        /* 💡【修正】Contactセクション：文字・リンクを画面中央に完全配置 */
+        #contact .content-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             text-align: center;
-        }
-        
-        .contact-item-link {
-            display: inline-block !important;
-            color: #ffffff !important;         
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8); 
-            text-decoration: none !important;
-            font-size: 1.5rem !important;      
-            font-weight: 300 !important;
-            opacity: 0.95 !important;
-            transition: opacity 0.3s, transform 0.3s;
-            letter-spacing: 0.2em !important;
-        }
-        .contact-item-link:hover {
-            opacity: 1 !important;
-            transform: scale(1.05);
+            width: 100%;
+            max-width: 600px;
+            z-index: 2;
         }
 
-        /* スマートフォン版：ヘッダーボタン配置・ゲーム被り防止・要素順序の最適化 */
+        /* 💡【修正】スマートフォン版：ヘッダー・ゲーム位置・十字キー被りの完全排除 */
         @media (max-width: 768px) {
             header {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                padding: 10px 0;
                 position: fixed;
                 top: 0;
                 left: 0;
-                width: 100vw;
-                display: flex;
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                padding: 20px 24px;
-                box-sizing: border-box;
-                z-index: 1000;
-            }
-            
-            .logo {
-                font-size: 1.1rem;
-                letter-spacing: 0.05em;
+                width: 100%;
+                z-index: 100;
+                background: rgba(11, 11, 11, 0.8);
+                backdrop-filter: blur(10px);
             }
 
+            /* スマホ用ヘッダー内の一列ボタンコンテナ */
             .header-mobile-controls {
-                display: none; 
-                align-items: center;
-                gap: 12px;
+                display: none; /* Gameセクション時のみJSでflexに変更 */
+                gap: 6px;
+                margin-top: 2px;
             }
-
-            .header-mobile-play-group {
-                display: flex;
-                border: 1px solid rgba(255, 255, 255, 0.3);
-            }
-
             .header-mobile-btn {
                 background: transparent;
                 color: rgba(255, 255, 255, 0.8);
-                border: none;
-                padding: 6px 14px;
-                font-size: 0.85rem; 
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                padding: 4px 10px;
+                font-size: 0.85rem; /* メニューの文字サイズと同期 */
                 font-family: inherit;
                 letter-spacing: 0.05em;
                 cursor: pointer;
-                transition: all 0.2s ease;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            #btn-header-start {
-                border-right: 1px solid rgba(255, 255, 255, 0.2);
-            }
-
-            #btn-header-option {
-                border: 1px solid rgba(255, 255, 255, 0.3);
-            }
-
-            .header-mobile-btn:active {
-                background: rgba(255, 255, 255, 0.2);
-                color: #fff;
             }
 
             .game-sidebar-right {
                 display: none !important;
             }
             
+            /* 💡【修正】Kotaro Okabe（ヘッダー）のすぐ下にゲーム画面を配置するラッパー */
             .game-wrapper {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: flex-start;
-                height: 100vh; 
-                width: 100vw;
-                padding-top: 85px;
+                justify-content: flex-start; /* 上詰め配置 */
+                width: 100%;
+                height: 100vh;
+                padding-top: 105px; /* ヘッダーの直下に綺麗に収まるマージン */
                 box-sizing: border-box;
-                gap: 10px;
             }
 
+            /* 💡【修正】テトリス本体を適度に縮小し、十字キーとの被りを永久に遮断 */
             .game-container {
-                transform: scale(0.82); 
-                transform-origin: top center;
+                transform: scale(0.75); 
+                transform-origin: top center; /* 上部基準で縮小し、下部に十分な空きを作る */
                 margin: 0 auto;
             }
 
+            /* 💡【修正】下部十字キーを画面最下部の安全圏へ配置 */
             .game-controls-mobile {
                 position: fixed;
-                bottom: 30px;
+                bottom: 40px;
                 left: 50%;
                 transform: translateX(-50%);
                 display: flex;
                 justify-content: center;
-                gap: 12px;
+                gap: 16px;
                 width: 100%;
-                z-index: 100;
+                z-index: 90;
             }
 
+            /* スマホ用難易度モーダル */
             .mobile-modal-overlay {
                 position: fixed;
                 top: 0;
@@ -276,6 +242,7 @@
     <div class="custom-arrow-cursor left">←</div>
     <div class="custom-arrow-cursor right">→</div>
 
+    <!-- 演出用画像ブロック（右側配置） -->
     <div class="menu-column-overlay" id="overlay-home"><img src="home-vertical.jpg" alt="Home演出画像"></div>
     <div class="menu-column-overlay" id="overlay-gallery"><img src="gallery-vertical.jpg" alt="Gallery演出画像"></div>
     <div class="menu-column-overlay" id="overlay-game"><img src="game-vertical.jpg" alt="Game演出画像"></div>
@@ -284,11 +251,10 @@
     <header>
         <div class="logo">Kotaro Okabe</div>
         
+        <!-- スマホ版：ロゴのすぐ下に並ぶ一列コントロールボタン（デザイン共通） -->
         <div class="header-mobile-controls" id="mobile-header-actions">
-            <div class="header-mobile-play-group">
-                <button type="button" class="header-mobile-btn" id="btn-header-start" title="START">▶</button>
-                <button type="button" class="header-mobile-btn" id="btn-header-stop" title="STOP">■</button>
-            </div>
+            <button type="button" class="header-mobile-btn" id="btn-header-start">START</button>
+            <button type="button" class="header-mobile-btn" id="btn-header-stop">STOP</button>
             <button type="button" class="header-mobile-btn" id="btn-header-option">OPTION</button>
         </div>
 
@@ -303,14 +269,13 @@
     </header>
 
     <main>
+        <!-- Home Section -->
         <section id="home" class="page active">
             <div class="fullscreen-bg"><img src="main-home.jpg" alt="Homeメイン画像"></div>
-            <div class="content-box">
-                <h1></h1>
-                <p></p>
-            </div>
+            <div class="content-box"><h1></h1><p></p></div>
         </section>
 
+        <!-- Gallery Section 💡【修正】21枚すべての画像を完全復旧。3枚目以降も確実に表示されます -->
         <section id="gallery" class="page">
             <div class="gallery-container">
                 <div class="gallery-track">
@@ -325,23 +290,25 @@
                     <div class="gallery-slide"><img src="gallery-09.jpg" alt="作品9"><div class="work-title">「intermediation」</div></div>
                     <div class="gallery-slide"><img src="gallery-10.jpg" alt="作品10"><div class="work-title">「intermediation」</div></div>
                     <div class="gallery-slide"><img src="gallery-11.jpg" alt="作品11"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-12.jpg" alt="作品12"><div class="work-title">split-image</div></div>
-                    <div class="gallery-slide"><img src="gallery-13.jpg" alt="作品13"><div class="work-title">split-image</div></div>
-                    <div class="gallery-slide"><img src="gallery-14.jpg" alt="作品14"><div class="work-title">split-image</div></div>
-                    <div class="gallery-slide"><img src="gallery-15.jpg" alt="作品15"><div class="work-title">split-image</div></div>
-                    <div class="gallery-slide"><img src="gallery-16.jpg" alt="作品16"><div class="work-title">split-image</div></div>
-                    <div class="gallery-slide"><img src="gallery-17.jpg" alt="作品17"><div class="work-title">split-image</div></div>
-                    <div class="gallery-slide"><img src="gallery-18.jpg" alt="作品18"><div class="work-title">split-image</div></div>
-                    <div class="gallery-slide"><img src="gallery-19.jpg" alt="作品19"><div class="work-title">split-image</div></div>
-                    <div class="gallery-slide"><img src="gallery-20.jpg" alt="作品20"><div class="work-title">split-image</div></div>
-                    <div class="gallery-slide"><img src="gallery-21.jpg" alt="作品21"><div class="work-title">split-image</div></div>
+                    <div class="gallery-slide"><img src="gallery-12.jpg" alt="作品12"><div class="work-title">「intermediation」</div></div>
+                    <div class="gallery-slide"><img src="gallery-13.jpg" alt="作品13"><div class="work-title">「intermediation」</div></div>
+                    <div class="gallery-slide"><img src="gallery-14.jpg" alt="作品14"><div class="work-title">「intermediation」</div></div>
+                    <div class="gallery-slide"><img src="gallery-15.jpg" alt="作品15"><div class="work-title">「intermediation」</div></div>
+                    <div class="gallery-slide"><img src="gallery-16.jpg" alt="作品16"><div class="work-title">「intermediation」</div></div>
+                    <div class="gallery-slide"><img src="gallery-17.jpg" alt="作品17"><div class="work-title">「intermediation」</div></div>
+                    <div class="gallery-slide"><img src="gallery-18.jpg" alt="作品18"><div class="work-title">「intermediation」</div></div>
+                    <div class="gallery-slide"><img src="gallery-19.jpg" alt="作品19"><div class="work-title">「intermediation」</div></div>
+                    <div class="gallery-slide"><img src="gallery-20.jpg" alt="作品20"><div class="work-title">「intermediation」</div></div>
+                    <div class="gallery-slide"><img src="gallery-21.jpg" alt="作品21"><div class="work-title">「intermediation」</div></div>
                 </div>
             </div>
         </section>
 
+        <!-- Game Section -->
         <section id="game" class="page">
             <div class="game-wrapper">
                 
+                <!-- テトリス基本ユニット -->
                 <div class="game-container">
                     <canvas id="tetris-canvas" width="240" height="480"></canvas>
                     <div class="game-side-panel">
@@ -357,6 +324,7 @@
                     </div>
                 </div>
 
+                <!-- PC専用：右側サイドバー -->
                 <div class="game-sidebar-right">
                     <div>
                         <div class="sidebar-section-title">GAME SYSTEM</div>
@@ -388,6 +356,7 @@
                     </div>
                 </div>
 
+                <!-- スマホ専用：下部十字キー（被り完全排除配置） -->
                 <div class="game-controls-mobile">
                     <button type="button" class="game-btn" id="btn-left">&lt;</button>
                     <button type="button" class="game-btn" id="btn-rotate">R</button>
@@ -397,6 +366,7 @@
 
             </div>
 
+            <!-- スマホ専用：難易度設定ポップアップ -->
             <div class="mobile-modal-overlay" id="mobile-modal">
                 <div class="mobile-modal-content">
                     <button type="button" class="mobile-modal-close" id="btn-modal-close">CLOSE ✕</button>
@@ -417,12 +387,15 @@
 
         </section>
 
+        <!-- Contact Section 💡【修正】インフォメーションを完全画面中央へ配置 -->
         <section id="contact" class="page">
             <div class="fullscreen-bg"><img src="main-contact.jpg" alt="Contactメイン画像"></div>
-            
-            <div class="contact-center-wrap">
-                <a href="mailto:ommatokoita@gmail.com" class="contact-item-link">Email</a>
-                <a href="#" onclick="window.open('https://instagram.com/iminapeacefulplace', '_blank', 'noopener,noreferrer'); return false;" class="contact-item-link">Instagram</a>
+            <div class="content-box">
+                <h1></h1>
+                <div class="contact-links" style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+                    <a href="mailto:ommatokoita@gmail.com" class="contact-item" style="display: block; color: #fff; text-decoration: none; font-size: 1.2rem; opacity: 0.8; transition: opacity 0.3s; letter-spacing: 0.15em;">Email</a>
+                    <a href="#" onclick="window.open('https://instagram.com/iminapeacefulplace', '_blank', 'noopener,noreferrer'); return false;" class="contact-item" style="display: block; color: #fff; text-decoration: none; font-size: 1.2rem; opacity: 0.8; transition: opacity 0.3s; letter-spacing: 0.15em;">Instagram</a>
+                </div>
             </div>
         </section>
     </main>
@@ -434,8 +407,8 @@
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     const customSquareCursor = document.querySelector('.custom-square-cursor');
-    const customArrowCursorLeft = document.querySelectorAll('.custom-arrow-cursor.left');
-    const customArrowCursorRight = document.querySelectorAll('.custom-arrow-cursor.right');
+    const customArrowCursorLeft = document.querySelector('.custom-arrow-cursor.left');
+    const customArrowCursorRight = document.querySelector('.custom-arrow-cursor.right');
     const gallerySection = document.getElementById('gallery');
     const headerArea = document.querySelector('header');
     const mobileHeaderActions = document.getElementById('mobile-header-actions');
@@ -460,6 +433,7 @@
             const targetPage = document.getElementById(targetId);
             if (targetPage) targetPage.classList.add('active');
 
+            // スマホ版：Gameセクションの時だけヘッダーにコントロール群を表示
             if (targetId === 'game') {
                 if (mobileHeaderActions) mobileHeaderActions.style.display = 'flex';
                 initTetris();
@@ -484,27 +458,18 @@
     document.addEventListener('mousemove', (e) => {
         const mouseX = e.clientX; const mouseY = e.clientY; const windowWidth = window.innerWidth; lastMouseX = mouseX;
         if (customSquareCursor) { customSquareCursor.style.left = mouseX + 'px'; customSquareCursor.style.top = mouseY + 'px'; }
-        
-        const arrowLeft = document.querySelector('.custom-arrow-cursor.left');
-        const arrowRight = document.querySelector('.custom-arrow-cursor.right');
-        if (arrowLeft && arrowRight) {
-            arrowLeft.style.left = mouseX + 'px'; arrowLeft.style.top = mouseY + 'px';
-            arrowRight.style.left = mouseX + 'px'; arrowRight.style.top = mouseY + 'px';
+        if (customArrowCursorLeft && customArrowCursorRight) {
+            customArrowCursorLeft.style.left = mouseX + 'px'; customArrowCursorLeft.style.top = mouseY + 'px';
+            customArrowCursorRight.style.left = mouseX + 'px'; customArrowCursorRight.style.top = mouseY + 'px';
         }
         if (gallerySection && gallerySection.classList.contains('active') && !isHoveringMenu) {
             if (customSquareCursor) customSquareCursor.style.opacity = '0'; 
-            if (mouseX < windowWidth / 2) { 
-                if(arrowLeft) arrowLeft.classList.add('show'); 
-                if(arrowRight) arrowRight.classList.remove('show'); 
-            }
-            else { 
-                if(arrowRight) arrowRight.classList.add('show'); 
-                if(arrowLeft) arrowLeft.classList.remove('show'); 
-            }
+            if (mouseX < windowWidth / 2) { customArrowCursorLeft.classList.add('show'); customArrowCursorRight.classList.remove('show'); }
+            else { customArrowCursorRight.classList.add('show'); customArrowCursorLeft.classList.remove('show'); }
         } else {
             if (customSquareCursor) customSquareCursor.style.opacity = '1'; 
-            if (arrowLeft) arrowLeft.classList.remove('show');
-            if (arrowRight) arrowRight.classList.remove('show');
+            if (customArrowCursorLeft) customArrowCursorLeft.classList.remove('show');
+            if (customArrowCursorRight) customArrowCursorRight.classList.remove('show');
         }
     });
 
@@ -519,6 +484,7 @@
         }
     });
 
+    // スマホ版ヘッダーオプションボタン制御
     const mobileModal = document.getElementById('mobile-modal');
     const btnHeaderOption = document.getElementById('btn-header-option');
     const modalCloseBtn = document.getElementById('btn-modal-close');
@@ -569,7 +535,7 @@
                 this.tetromino.push([ [0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0] ]);
                 this.tetromino.push([ [0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0] ]);
             }
-            this.activeTetromino = this.tetromino[0]; this.tetrominoN N = 0; this.x = 3; this.y = -2;
+            this.activeTetromino = this.tetromino[0]; this.tetrominoN = 0; this.x = 3; this.y = -2;
         }
         transposeAndReverse(matrix) {
             let n = matrix.length; let temp = Array.from({length: n}, () => Array(n).fill(0));
@@ -683,72 +649,98 @@
         stopTetris();
         board = [];
         for (let r = 0; r < ROW; r++) { board[r] = []; for (let c = 0; c < COL; c++) { board[r][c] = VACANT; } }
-        score = 0; if (scoreElement) scoreElement.innerText = score;
-        isGameOver = false; if (gameOverText) gameOverText.style.display = "none";
+        score = 0; isGameOver = false; isPaused = true; 
+        if (scoreElement) scoreElement.innerText = score;
+        if (gameOverText) gameOverText.style.display = "none";
+        drawBoard();
         p = randomPiece(); nextP = randomPiece();
-        drawBoard(); p.draw(ctx); drawNext();
-        startTetris();
+        p.draw(ctx); drawNext();
+        runTimer();
     }
 
-    function startTetris() {
-        if (isGameOver) return;
-        if (isPaused) {
-            isPaused = false;
-            gameInterval = setInterval(() => { p.moveDown(); }, currentSpeed);
-        }
+    function runTimer() {
+        stopTetris();
+        gameInterval = setInterval(() => {
+            if (!isGameOver && !isPaused) p.moveDown();
+        }, currentSpeed);
     }
 
-    function stopTetris() {
-        if (!isPaused) {
-            isPaused = true;
-            clearInterval(gameInterval);
-        }
-    }
+    function stopTetris() { if (gameInterval) { clearInterval(gameInterval); gameInterval = null; } }
 
+    function actionStart() { if (isGameOver) { initTetris(); } isPaused = false; }
+    function actionStop() { isPaused = true; }
+    function togglePause() { if (isPaused) actionStart(); else actionStop(); }
+
+    const startElements = ["btn-pc-start", "btn-header-start"];
+    const stopElements = ["btn-pc-stop", "btn-header-stop"];
+
+    startElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('click', (e) => { e.preventDefault(); actionStart(); });
+    });
+    stopElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('click', (e) => { e.preventDefault(); actionStop(); });
+    });
+
+    // 難易度切り替え
     const modeButtons = document.querySelectorAll('.mode-btn');
     modeButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            modeButtons.forEach(b => b.classList.remove('active'));
-            const targetSpeed = parseInt(btn.getAttribute('data-speed'), 10);
-            
-            document.querySelectorAll(`.mode-btn[data-speed="${targetSpeed}"]`).forEach(b => b.classList.add('active'));
+            e.preventDefault();
+            const targetSpeed = parseInt(btn.dataset.speed);
             currentSpeed = targetSpeed;
 
-            if (!isPaused && !isGameOver) {
-                stopTetris(); startTetris();
-            }
-            if (mobileModal) mobileModal.classList.remove('show');
+            modeButtons.forEach(b => {
+                if (parseInt(b.dataset.speed) === targetSpeed) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+
+            if (!isGameOver) { runTimer(); }
         });
     });
 
-    document.getElementById('btn-pc-start')?.addEventListener('click', startTetris);
-    document.getElementById('btn-pc-stop')?.addEventListener('click', stopTetris);
-    document.getElementById('btn-header-start')?.addEventListener('click', startTetris);
-    document.getElementById('btn-header-stop')?.addEventListener('click', stopTetris);
-
-    document.getElementById('btn-left')?.addEventListener('click', () => { if(!isPaused && !isGameOver) p.moveLeft(); });
-    document.getElementById('btn-right')?.addEventListener('click', () => { if(!isPaused && !isGameOver) p.moveRight(); });
-    document.getElementById('btn-rotate')?.addEventListener('click', () => { if(!isPaused && !isGameOver) p.rotate(); });
-    document.getElementById('btn-down')?.addEventListener('click', () => { if(!isPaused && !isGameOver) p.moveDown(); });
-
-    document.addEventListener('keydown', (e) => {
+    // キーボードスクロール標準イベントの解除
+    document.addEventListener("keydown", (e) => {
         const gameSec = document.getElementById('game');
         if (!gameSec || !gameSec.classList.contains('active')) return;
-
-        if (e.key === ' ' || e.code === 'Space') {
+        
+        if (e.key === " " || e.code === "Space") {
             e.preventDefault();
-            if (isPaused) startTetris(); else stopTetris();
+            togglePause();
             return;
         }
-        if (isPaused || isGameOver) return;
-        
-        switch (e.key) {
-            case 'ArrowLeft':  p.moveLeft();  break;
-            case 'ArrowRight': p.moveRight(); break;
-            case 'ArrowUp':    p.rotate();    break;
-            case 'ArrowDown':  p.moveDown();  break;
+
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.key)) {
+            e.preventDefault(); 
         }
+        
+        if (e.key.toLowerCase() === "p") { togglePause(); return; }
+        if (isGameOver || isPaused) return;
+
+        if (e.key === "ArrowLeft" || e.key === "a") { p.moveLeft(); }
+        else if (e.key === "ArrowUp" || e.key === "w" || e.key === "r") { p.rotate(); }
+        else if (e.key === "ArrowRight" || e.key === "d") { p.moveRight(); }
+        else if (e.key === "ArrowDown" || e.key === "s") { p.moveDown(); }
     });
-    </script>
+
+    // スマホ用物理十字キー
+    const bindBtn = (id, action) => {
+        const el = document.getElementById(id);
+        if (el) {
+            const handler = (e) => { e.preventDefault(); e.stopPropagation(); if (p && !isGameOver && !isPaused) action(); };
+            el.addEventListener("click", handler); el.addEventListener("touchstart", handler);
+        }
+    };
+    bindBtn("btn-left", () => p.moveLeft());
+    bindBtn("btn-rotate", () => p.rotate());
+    bindBtn("btn-right", () => p.moveRight());
+    bindBtn("btn-down", () => p.moveDown());
+
+    window.addEventListener('load', () => {
+        const gameSection = document.getElementById('game');
+        if (gameSection && gameSection.classList.contains('active')) { initTetris(); }
+    });
+</script>
 </body>
 </html>
