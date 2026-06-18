@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data:; font-src 'self';">
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -18,6 +18,9 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            background-color: #0b0b0b;
+            color: #fff;
+            font-family: sans-serif;
         }
 
         .page {
@@ -33,36 +36,96 @@
             display: block;
         }
 
-        /* 💡【修正】PCホバー演出画像を「画面右側」へ配置 ＆ 横幅拡張 */
+        /* 💡【原因解決】ギャラリーのスライド表示CSSが抜けていたのを追加 */
+        .gallery-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .gallery-track {
+            position: relative;
+            width: 80%;
+            height: 70vh;
+        }
+        .gallery-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .gallery-slide.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .gallery-slide img {
+            max-width: 100%;
+            max-height: 80%;
+            object-fit: contain;
+        }
+        .work-title {
+            margin-top: 15px;
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+        }
+
+        /* 💡 PCホバー演出画像を「画面右側」へ配置 */
         @media (min-width: 769px) {
             .menu-column-overlay {
-                width: 35% !important;
-                left: auto !important;
+                position: fixed;
+                top: 0;
                 right: 0 !important;
+                left: auto !important;
+                width: 35% !important;
+                height: 100vh;
+                z-index: 5;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                pointer-events: none;
+            }
+            .menu-column-overlay.show {
+                opacity: 0.15;
+                visibility: visible;
+            }
+            .menu-column-overlay img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
             }
             
-            /* 💡【修正】ゲーム画面：テトリスを画面の中央上部に配置 */
+            /* ゲーム画面配置 */
             .game-wrapper {
                 position: relative;
                 display: flex;
                 flex-direction: row;
-                align-items: flex-start; /* 中央上部に配置するため上詰めに変更 */
-                justify-content: center; /* 左右中央配置 */
+                align-items: flex-start;
+                justify-content: center;
                 width: 100%;
                 height: 100vh;
                 margin: 0 auto;
-                padding-top: 120px; /* ヘッダーの下に適度な余白を確保 */
+                padding-top: 120px;
                 box-sizing: border-box;
             }
             .game-container {
-                margin: 0 auto; /* 中央寄せ */
+                margin: 0 auto;
                 display: flex;
                 align-items: flex-start;
+                gap: 20px;
             }
-            /* サイドバーを右側に絶対配置して中央配置に干渉させない */
             .game-sidebar-right {
                 position: absolute;
-                right: 10%;
+                right: 5%;
                 top: 50%;
                 transform: translateY(-50%);
                 display: flex;
@@ -70,6 +133,7 @@
                 gap: 25px;
                 width: 220px;
                 text-align: left;
+                z-index: 10;
             }
             .header-mobile-controls, .mobile-modal-overlay, .game-controls-mobile {
                 display: none !important;
@@ -115,7 +179,7 @@
             margin-bottom: 8px;
         }
 
-        /* 💡【修正】Contactセクション：文字・リンクを画面中央に完全配置 */
+        /* 💡 Contactセクション：文字・リンク配置 */
         #contact .content-box {
             position: absolute;
             top: 50%;
@@ -124,21 +188,44 @@
             text-align: center;
             width: 100%;
             max-width: 600px;
-            /* 💡 最前面表示対応: 演出用画像や背景よりも手前に配置 */
             z-index: 9999 !important;
             pointer-events: auto !important;
         }
 
-        /* 💡 各コンタクトアイテムも確実にクリック可能にする */
         .contact-item {
             position: relative;
             z-index: 10000 !important;
             pointer-events: auto !important;
         }
 
-        /* 💡【修正】スマートフォン版：ヘッダー・ゲーム位置・十字キー被りの完全排除 */
+        /* 💡 カスタムカーソル基本用スタイル */
+        .custom-square-cursor, .custom-arrow-cursor {
+            position: fixed;
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        @media (min-width: 769px) {
+            body { cursor: none; }
+            .custom-square-cursor {
+                width: 15px;
+                height: 15px;
+                border: 1px solid #fff;
+                opacity: 1;
+            }
+            .custom-arrow-cursor.show {
+                opacity: 1;
+                font-size: 2rem;
+                color: #fff;
+            }
+        }
+
+        /* 💡 スマートフォン版 */
         @media (max-width: 768px) {
             header {
+                display: flex;
                 flex-direction: column;
                 align-items: center;
                 gap: 8px;
@@ -151,10 +238,21 @@
                 background: rgba(11, 11, 11, 0.8);
                 backdrop-filter: blur(10px);
             }
+            header nav ul {
+                display: flex;
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                gap: 15px;
+            }
+            header nav ul li a {
+                color: #fff;
+                text-decoration: none;
+                font-size: 0.85rem;
+            }
 
-            /* スマホ用ヘッダー内の一列ボタンコンテナ */
             .header-mobile-controls {
-                display: none; /* Gameセクション時のみJSでflexに変更 */
+                display: none;
                 gap: 6px;
                 margin-top: 2px;
             }
@@ -163,9 +261,7 @@
                 color: rgba(255, 255, 255, 0.8);
                 border: 1px solid rgba(255, 255, 255, 0.3);
                 padding: 4px 10px;
-                font-size: 0.85rem; /* メニューの文字サイズと同期 */
-                font-family: inherit;
-                letter-spacing: 0.05em;
+                font-size: 0.85rem;
                 cursor: pointer;
             }
 
@@ -173,26 +269,24 @@
                 display: none !important;
             }
             
-            /* 💡【修正】Kotaro Okabe（ヘッダー）のすぐ下にゲーム画面を配置するラッパー */
             .game-wrapper {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: flex-start; /* 上詰め配置 */
+                justify-content: flex-start;
                 width: 100%;
                 height: 100vh;
-                padding-top: 105px; /* ヘッダーの直下に綺麗に収まるマージン */
+                padding-top: 130px;
                 box-sizing: border-box;
             }
 
-            /* 💡【修正】テトリス本体を適度に縮小し、十字キーとの被りを永久に遮断 */
             .game-container {
-                transform: scale(0.75); 
-                transform-origin: top center; /* 上部基準で縮小し、下部に十分な空きを作る */
+                transform: scale(0.7); 
+                transform-origin: top center;
                 margin: 0 auto;
+                display: flex;
             }
 
-            /* 💡【修正】下部十字キーを画面最下部の安全圏へ配置 */
             .game-controls-mobile {
                 position: fixed;
                 bottom: 40px;
@@ -204,8 +298,16 @@
                 width: 100%;
                 z-index: 90;
             }
+            .game-btn {
+                width: 50px;
+                height: 50px;
+                background: rgba(255,255,255,0.1);
+                color: #fff;
+                border: 1px solid rgba(255,255,255,0.3);
+                font-size: 1.2rem;
+                border-radius: 50%;
+            }
 
-            /* スマホ用難易度モーダル */
             .mobile-modal-overlay {
                 position: fixed;
                 top: 0;
@@ -244,6 +346,15 @@
                 cursor: pointer;
             }
         }
+        
+        /* 背景画像調整 */
+        .fullscreen-bg {
+            position: absolute;
+            top:0; left:0; width:100%; height:100%;
+            z-index: 1;
+            opacity: 0.3;
+        }
+        .fullscreen-bg img { width:100%; height:100%; object-fit:cover; }
     </style>
 </head>
 <body>
@@ -252,16 +363,14 @@
     <div class="custom-arrow-cursor left">←</div>
     <div class="custom-arrow-cursor right">→</div>
 
-    <!-- 演出用画像ブロック（右側配置） -->
     <div class="menu-column-overlay" id="overlay-home"><img src="home-vertical.jpg" alt="Home演出画像"></div>
     <div class="menu-column-overlay" id="overlay-gallery"><img src="gallery-vertical.jpg" alt="Gallery演出画像"></div>
     <div class="menu-column-overlay" id="overlay-game"><img src="game-vertical.jpg" alt="Game演出画像"></div>
     <div class="menu-column-overlay" id="overlay-contact"><img src="contact-vertical.jpg" alt="Contact演出画像"></div>
 
     <header>
-        <div class="logo">Kotaro Okabe</div>
+        <div class="logo" style="font-weight: bold; letter-spacing: 0.1em;">Kotaro Okabe</div>
         
-        <!-- スマホ版：ロゴのすぐ下に並ぶ一列コントロールボタン（デザイン共通） -->
         <div class="header-mobile-controls" id="mobile-header-actions">
             <button type="button" class="header-mobile-btn" id="btn-header-start">START</button>
             <button type="button" class="header-mobile-btn" id="btn-header-stop">STOP</button>
@@ -279,62 +388,60 @@
     </header>
 
     <main>
-        <!-- Home Section -->
         <section id="home" class="page active">
             <div class="fullscreen-bg"><img src="main-home.jpg" alt="Homeメイン画像"></div>
-            <div class="content-box"><h1></h1><p></p></div>
+            <div class="content-box" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center;">
+                <h1>Kotaro Okabe</h1>
+                <p>Portfolio Website</p>
+            </div>
         </section>
 
-        <!-- Gallery Section 💡【修正】21枚すべての画像を完全復旧。3枚目以降も確実に表示されます -->
         <section id="gallery" class="page">
             <div class="gallery-container">
                 <div class="gallery-track">
-                    <div class="gallery-slide"><img src="gallery-01.jpg" alt="作品1"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-02.jpg" alt="作品2"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-03.jpg" alt="作品3"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-04.jpg" alt="作品4"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-05.jpg" alt="作品5"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-06.jpg" alt="作品6"><div class="work-title">className</div></div>
-                    <div class="gallery-slide"><img src="gallery-07.jpg" alt="作品7"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-08.jpg" alt="作品8"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-09.jpg" alt="作品9"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-10.jpg" alt="作品10"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-11.jpg" alt="作品11"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-12.jpg" alt="作品12"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-13.jpg" alt="作品13"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-14.jpg" alt="作品14"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-15.jpg" alt="作品15"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-16.jpg" alt="作品16"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-17.jpg" alt="作品17"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-18.jpg" alt="作品18"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-19.jpg" alt="作品19"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-20.jpg" alt="作品20"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-21.jpg" alt="作品21"><div class="work-title">「intermediation」</div></div>
+                    <div class="gallery-slide active"><img src="gallery-01.jpg" alt="作品1"><div class="work-title">「intermediation」 01/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-02.jpg" alt="作品2"><div class="work-title">「intermediation」 02/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-03.jpg" alt="作品3"><div class="work-title">「intermediation」 03/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-04.jpg" alt="作品4"><div class="work-title">「intermediation」 04/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-05.jpg" alt="作品5"><div class="work-title">「intermediation」 05/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-06.jpg" alt="作品6"><div class="work-title">className 06/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-07.jpg" alt="作品7"><div class="work-title">「intermediation」 07/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-08.jpg" alt="作品8"><div class="work-title">「intermediation」 08/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-09.jpg" alt="作品9"><div class="work-title">「intermediation」 09/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-10.jpg" alt="作品10"><div class="work-title">「intermediation」 10/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-11.jpg" alt="作品11"><div class="work-title">「intermediation」 11/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-12.jpg" alt="作品12"><div class="work-title">「intermediation」 12/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-13.jpg" alt="作品13"><div class="work-title">「intermediation」 13/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-14.jpg" alt="作品14"><div class="work-title">「intermediation」 14/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-15.jpg" alt="作品15"><div class="work-title">「intermediation」 15/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-16.jpg" alt="作品16"><div class="work-title">「intermediation」 16/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-17.jpg" alt="作品17"><div class="work-title">「intermediation」 17/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-18.jpg" alt="作品18"><div class="work-title">「intermediation」 18/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-19.jpg" alt="作品19"><div class="work-title">「intermediation」 19/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-20.jpg" alt="作品20"><div class="work-title">「intermediation」 20/21</div></div>
+                    <div class="gallery-slide"><img src="gallery-21.jpg" alt="作品21"><div class="work-title">「intermediation」 21/21</div></div>
                 </div>
             </div>
         </section>
 
-        <!-- Game Section -->
         <section id="game" class="page">
             <div class="game-wrapper">
                 
-                <!-- テトリス基本ユニット -->
                 <div class="game-container">
-                    <canvas id="tetris-canvas" width="240" height="480"></canvas>
-                    <div class="game-side-panel">
+                    <canvas id="tetris-canvas" width="240" height="480" style="border: 1px solid rgba(255,255,255,0.2);"></canvas>
+                    <div class="game-side-panel" style="width: 80px;">
                         <div class="panel-section">
-                            <div class="panel-label">SCORE</div>
-                            <div id="game-score" class="panel-value">0</div>
+                            <div class="panel-label" style="font-size:0.6rem; color:rgba(255,255,255,0.5);">SCORE</div>
+                            <div id="game-score" class="panel-value" style="font-size:1.2rem; font-weight:bold;">0</div>
                         </div>
-                        <div class="panel-section">
-                            <div class="panel-label">NEXT</div>
-                            <canvas id="next-canvas" width="80" height="80"></canvas>
+                        <div class="panel-section" style="margin-top:20px;">
+                            <div class="panel-label" style="font-size:0.6rem; color:rgba(255,255,255,0.5);">NEXT</div>
+                            <canvas id="next-canvas" width="80" height="80" style="border: 1px solid rgba(255,255,255,0.1);"></canvas>
                         </div>
                         <div id="game-over-text" class="panel-value" style="color: #ff3333; font-size: 0.75rem; letter-spacing: 0.1em; margin-top: 20px; display: none;">GAME OVER</div>
                     </div>
                 </div>
 
-                <!-- PC専用：右側サイドバー -->
                 <div class="game-sidebar-right">
                     <div>
                         <div class="sidebar-section-title">GAME SYSTEM</div>
@@ -344,13 +451,12 @@
                         </div>
                     </div>
 
-                    <div class="game-controls-pc">
-                        <div class="pc-guide-title" style="margin-bottom:8px;">CONTROLS</div>
-                        <div class="pc-guide-item"><span class="pc-key">←</span><span class="pc-action">MOVE LEFT</span></div>
-                        <div class="pc-guide-item"><span class="pc-key">→</span><span class="pc-action">MOVE RIGHT</span></div>
-                        <div class="pc-guide-item"><span class="pc-key">↑</span><span class="pc-action">ROTATE</span></div>
-                        <div class="pc-guide-item"><span class="pc-key">↓</span><span class="pc-action">DROP</span></div>
-                        <div class="pc-guide-item"><span class="pc-key">Space</span><span class="pc-action">START / STOP</span></div>
+                    <div class="game-controls-pc" style="font-size:0.7rem; color:rgba(255,255,255,0.6); display:flex; flex-direction:column; gap:4px;">
+                        <div class="pc-guide-title" style="margin-bottom:8px; color:#fff;">CONTROLS</div>
+                        <div class="pc-guide-item"><span>← : MOVE LEFT</span></div>
+                        <div class="pc-guide-item"><span>→ : MOVE RIGHT</span></div>
+                        <div class="pc-guide-item"><span>↑ : ROTATE</span></div>
+                        <div class="pc-guide-item"><span>↓ : DROP</span></div>
                     </div>
 
                     <div>
@@ -366,7 +472,6 @@
                     </div>
                 </div>
 
-                <!-- スマホ専用：下部十字キー（被り完全排除配置） -->
                 <div class="game-controls-mobile">
                     <button type="button" class="game-btn" id="btn-left">&lt;</button>
                     <button type="button" class="game-btn" id="btn-rotate">R</button>
@@ -376,11 +481,9 @@
 
             </div>
 
-            <!-- スマホ専用：難易度設定ポップアップ -->
             <div class="mobile-modal-overlay" id="mobile-modal">
                 <div class="mobile-modal-content">
                     <button type="button" class="mobile-modal-close" id="btn-modal-close">CLOSE ✕</button>
-                    
                     <div>
                         <div class="sidebar-section-title">DIFFICULTY MODE</div>
                         <div class="btn-group-row" style="margin-bottom: 8px;">
@@ -397,11 +500,10 @@
 
         </section>
 
-        <!-- Contact Section 💡【修正】インフォメーションを完全画面中央へ配置 ＆ 最前面固定 -->
         <section id="contact" class="page">
             <div class="fullscreen-bg"><img src="main-contact.jpg" alt="Contactメイン画像"></div>
             <div class="content-box">
-                <h1></h1>
+                <h1 style="margin-bottom:30px;">Contact</h1>
                 <div class="contact-links" style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
                     <a href="mailto:ommatokoita@gmail.com" class="contact-item" style="display: block; color: #fff; text-decoration: none; font-size: 1.2rem; opacity: 0.8; transition: opacity 0.3s; letter-spacing: 0.15em;">Email</a>
                     <a href="#" onclick="window.open('https://instagram.com/iminapeacefulplace', '_blank', 'noopener,noreferrer'); return false;" class="contact-item" style="display: block; color: #fff; text-decoration: none; font-size: 1.2rem; opacity: 0.8; transition: opacity 0.3s; letter-spacing: 0.15em;">Instagram</a>
@@ -443,7 +545,6 @@
             const targetPage = document.getElementById(targetId);
             if (targetPage) targetPage.classList.add('active');
 
-            // スマホ版：Gameセクションの時だけヘッダーにコントロール群を表示
             if (targetId === 'game') {
                 if (mobileHeaderActions) mobileHeaderActions.style.display = 'flex';
                 initTetris();
@@ -462,8 +563,10 @@
         });
     });
 
-    headerArea.addEventListener('mouseenter', () => { isHoveringMenu = true; });
-    headerArea.addEventListener('mouseleave', () => { isHoveringMenu = false; });
+    if (headerArea) {
+        headerArea.addEventListener('mouseenter', () => { isHoveringMenu = true; });
+        headerArea.addEventListener('mouseleave', () => { isHoveringMenu = false; });
+    }
 
     document.addEventListener('mousemove', (e) => {
         const mouseX = e.clientX; const mouseY = e.clientY; const windowWidth = window.innerWidth; lastMouseX = mouseX;
@@ -507,7 +610,7 @@
     }
 
     // ==========================================================================
-    // 🕹️ ミニマル・テトリスゲームエンジン
+    // 🕹️ ミニマル・テトリスゲームエンジン（完全版に修復）
     // ==========================================================================
     const canvas = document.getElementById('tetris-canvas');
     const ctx = canvas ? canvas.getContext('2d') : null;
@@ -553,6 +656,7 @@
             return temp.map(row => row.reverse());
         }
         draw(targetCtx, offsetX = 0, offsetY = 0, size = SQ) {
+            if(!targetCtx) return;
             for (let r = 0; r < this.activeTetromino.length; r++) {
                 for (let c = 0; c < this.activeTetromino[r].length; c++) {
                     if (this.activeTetromino[r][c]) {
@@ -654,30 +758,74 @@
         }
     }
 
+    // 💡【追加】コントロール制御関数群の完成
     function initTetris() {
         if (!ctx) return;
         stopTetris();
         board = [];
         for (let r = 0; r < ROW; r++) { board[r] = []; for (let c = 0; c < COL; c++) { board[r][c] = VACANT; } }
-        score = 0; isGameOver = false; isPaused = true; 
-        if (scoreElement) scoreElement.innerText = score;
+        score = 0; if (scoreElement) scoreElement.innerText = score;
+        isGameOver = false;
         if (gameOverText) gameOverText.style.display = "none";
-        p = randomPiece(); nextP = randomPiece();
-        drawBoard(); p.draw(ctx); drawNext();
+        p = randomPiece();
+        nextP = randomPiece();
+        drawBoard();
+        p.draw(ctx);
+        drawNext();
+        startTetris();
     }
 
     function startTetris() {
-        if (isGameOver) initTetris();
-        if (isPaused) {
-            isPaused = false;
-            gameInterval = setInterval(() => { p.moveDown(); }, currentSpeed);
-        }
+        if (isGameOver) return;
+        if (gameInterval) clearInterval(gameInterval);
+        isPaused = false;
+        gameInterval = setInterval(() => {
+            if (!isPaused && p) p.moveDown();
+        }, currentSpeed);
     }
 
     function stopTetris() {
         isPaused = true;
         if (gameInterval) { clearInterval(gameInterval); gameInterval = null; }
     }
+
+    // イベント割り当て（PC / スマホ両対応）
+    document.addEventListener('keydown', (e) => {
+        if (isPaused || isGameOver || !p) return;
+        if (e.key === "ArrowLeft") p.moveLeft();
+        else if (e.key === "ArrowRight") p.moveRight();
+        else if (e.key === "ArrowUp") p.rotate();
+        else if (e.key === "ArrowDown") p.moveDown();
+    });
+
+    const initBtnEvents = (startId, stopId) => {
+        const startBtn = document.getElementById(startId);
+        const stopBtn = document.getElementById(stopId);
+        if(startBtn) startBtn.addEventListener('click', () => { if(isGameOver){initTetris();} else {startTetris();} });
+        if(stopBtn) stopBtn.addEventListener('click', stopTetris);
+    };
+    initBtnEvents('btn-pc-start', 'btn-pc-stop');
+    initBtnEvents('btn-header-start', 'btn-header-stop');
+
+    // スマホ用方向キーイベント
+    const bindMobileKey = (id, action) => {
+        const btn = document.getElementById(id);
+        if(btn) btn.addEventListener('click', () => { if(!isPaused && !isGameOver && p) action(); });
+    };
+    bindMobileKey('btn-left', () => p.moveLeft());
+    bindMobileKey('btn-right', () => p.moveRight());
+    bindMobileKey('btn-rotate', () => p.rotate());
+    bindMobileKey('btn-down', () => p.moveDown());
+
+    // 難易度（スピード設定）
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            currentSpeed = parseInt(e.target.getAttribute('data-speed')) || 500;
+            if(!isPaused && !isGameOver) startTetris();
+        });
+    });
     </script>
 </body>
 </html>
