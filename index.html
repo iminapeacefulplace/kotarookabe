@@ -69,7 +69,6 @@
             width: 100%;
         }
         .mode-btn, .action-btn {
-            flex: 1;
             background: transparent;
             color: rgba(255, 255, 255, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -80,8 +79,12 @@
             transition: all 0.3s ease;
         }
         .action-btn {
+            flex: 1;
             color: #fff;
             border-color: rgba(255, 255, 255, 0.4);
+        }
+        .mode-btn {
+            flex: 1;
         }
         .mode-btn:hover, .action-btn:hover {
             background: rgba(255, 255, 255, 0.1);
@@ -474,7 +477,7 @@
         }
         if (gallerySection && gallerySection.classList.contains('active') && !isHoveringMenu) {
             if (customSquareCursor) customSquareCursor.style.opacity = '0'; 
-            if (mouseX < windowWidth / 2) { customArrowCursorLeft.classList.add('add'); customArrowCursorLeft.classList.add('show'); customArrowCursorRight.classList.remove('show'); }
+            if (mouseX < windowWidth / 2) { customArrowCursorLeft.classList.add('show'); customArrowCursorRight.classList.remove('show'); }
             else { customArrowCursorRight.classList.add('show'); customArrowCursorLeft.classList.remove('show'); }
         } else {
             if (customSquareCursor) customSquareCursor.style.opacity = '1'; 
@@ -661,94 +664,82 @@
         stopTetris();
         board = [];
         for (let r = 0; r < ROW; r++) { board[r] = []; for (let c = 0; c < COL; c++) { board[r][c] = VACANT; } }
-        score = 0; isGameOver = false; isPaused = true; 
-        if (scoreElement) scoreElement.innerText = score;
-        if (gameOverText) gameOverText.style.display = "none";
-        drawBoard();
+        score = 0; if (scoreElement) scoreElement.innerText = score;
+        isGameOver = false; if (gameOverText) gameOverText.style.display = "none";
         p = randomPiece(); nextP = randomPiece();
-        p.draw(ctx); drawNext();
-        runTimer();
+        drawBoard(); p.draw(ctx); drawNext();
+        startTetris();
     }
 
-    function runTimer() {
-        stopTetris();
-        gameInterval = setInterval(() => {
-            if (!isGameOver && !isPaused) p.moveDown();
-        }, currentSpeed);
+    function startTetris() {
+        if (isGameOver) return;
+        if (isPaused) {
+            isPaused = false;
+            gameInterval = setInterval(() => { p.moveDown(); }, currentSpeed);
+        }
     }
 
-    function stopTetris() { if (gameInterval) { clearInterval(gameInterval); gameInterval = null; } }
+    function stopTetris() {
+        if (!isPaused) {
+            isPaused = true;
+            clearInterval(gameInterval);
+        }
+    }
 
-    function actionStart() { if (isGameOver) { initTetris(); } isPaused = false; }
-    function actionStop() { isPaused = true; }
-    function togglePause() { if (isPaused) actionStart(); else actionStop(); }
-
-    // PCボタンと新スマホヘッダーボタンのイベントをすべて集約紐づけ
-    const startElements = ["btn-pc-start", "btn-header-start"];
-    const stopElements = ["btn-pc-stop", "btn-header-stop"];
-
-    startElements.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('click', (e) => { e.preventDefault(); actionStart(); });
-    });
-    stopElements.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('click', (e) => { e.preventDefault(); actionStop(); });
-    });
-
-    // 難易度切り替え
+    // ==========================================================================
+    // 🎮 コントロールイベント定義（PC・スマホ同期処理）
+    // ==========================================================================
+    // 難易度切り替えロジック
     const modeButtons = document.querySelectorAll('.mode-btn');
     modeButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetSpeed = parseInt(btn.dataset.speed);
+            modeButtons.forEach(b => b.classList.remove('active'));
+            const targetSpeed = parseInt(btn.getAttribute('data-speed'), 10);
+            
+            // 全ての同一難易度ボタンをアクティブにする（PC・スマホ連動）
+            document.querySelectorAll(`.mode-btn[data-speed="${targetSpeed}"]`).forEach(b => b.classList.add('active'));
             currentSpeed = targetSpeed;
 
-            modeButtons.forEach(b => {
-                if (parseInt(b.dataset.speed) === targetSpeed) b.classList.add('active');
-                else b.classList.remove('active');
-            });
-
-            if (!isGameOver) { runTimer(); }
+            if (!isPaused && !isGameOver) {
+                stopTetris(); startTetris();
+            }
+            if (mobileModal) mobileModal.classList.remove('show');
         });
     });
 
-    // キーボード操作
-    document.addEventListener("keydown", (e) => {
+    // START / STOP ボタン処理（PC側）
+    document.getElementById('btn-pc-start')?.addEventListener('click', startTetris);
+    document.getElementById('btn-pc-stop')?.addEventListener('click', stopTetris);
+
+    // START / STOP ボタン処理（スマホヘッダー側）
+    document.getElementById('btn-header-start')?.addEventListener('click', startTetris);
+    document.getElementById('btn-header-stop')?.addEventListener('click', stopTetris);
+
+    // スマホ用仮想十字キー操作
+    document.getElementById('btn-left')?.addEventListener('click', () => { if(!isPaused && !isGameOver) p.moveLeft(); });
+    document.getElementById('btn-right')?.addEventListener('click', () => { if(!isPaused && !isGameOver) p.moveRight(); });
+    document.getElementById('btn-rotate')?.addEventListener('click', () => { if(!isPaused && !isGameOver) p.rotate(); });
+    document.getElementById('btn-down')?.addEventListener('click', () => { if(!isPaused && !isGameOver) p.moveDown(); });
+
+    // PCキーボード操作
+    document.addEventListener('keydown', (e) => {
         const gameSec = document.getElementById('game');
         if (!gameSec || !gameSec.classList.contains('active')) return;
-        
-        if (e.key === " " || e.code === "Space") {
+
+        if (e.key === ' ' || e.code === 'Space') {
             e.preventDefault();
-            togglePause();
+            if (isPaused) startTetris(); else stopTetris();
             return;
         }
-
-        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.key)) {
-            e.preventDefault(); 
-        }
+        if (isPaused || isGameOver) return;
         
-        if (e.key.toLowerCase() === "p") { togglePause(); return; }
-        if (isGameOver || isPaused) return;
-
-        if (e.key === "ArrowLeft" || e.key === "a") { p.moveLeft(); }
-        else if (e.key === "ArrowUp" || e.key === "w" || e.key === "r") { p.rotate(); }
-        else if (e.key === "ArrowRight" || e.key === "d") { p.moveRight(); }
-        else if (e.key === "ArrowDown" || e.key === "s") { p.moveDown(); }
-    });
-
-    // スマホ用物理十字キー
-    const bindBtn = (id, action) => {
-        const el = document.getElementById(id);
-        if (el) {
-            const handler = (e) => { e.preventDefault(); e.stopPropagation(); if (p && !isGameOver && !isPaused) action(); };
-            el.addEventListener("click", handler); el.addEventListener("touchstart", handler);
+        switch (e.key) {
+            case 'ArrowLeft':  p.moveLeft();  break;
+            case 'ArrowRight': p.moveRight(); break;
+            case 'ArrowUp':    p.rotate();    break;
+            case 'ArrowDown':  p.moveDown();  break;
         }
-    };
-    bindBtn("btn-left", () => p.moveLeft());
-    bindBtn("btn-rotate", () => p.rotate());
-    bindBtn("btn-right", () => p.moveRight());
-    bindBtn("btn-down", () => p.moveDown());
+    });
     </script>
 </body>
 </html>
