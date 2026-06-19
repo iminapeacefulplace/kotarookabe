@@ -438,7 +438,7 @@
         }
         if (gallerySection && gallerySection.classList.contains('active') && !isHoveringMenu) {
             if (customSquareCursor) customSquareCursor.style.opacity = '0'; 
-            if (mouseX < windowWidth / 2) { customArrowCursorLeft.classList.add('show'); customArrowCursorRight.classList.remove('show'); }
+            if (mouseX < windowWidth / 2) { customArrowCursorLeft.classList.add('add'); customArrowCursorRight.classList.remove('show'); }
             else { customArrowCursorRight.classList.add('show'); customArrowCursorLeft.classList.remove('show'); }
         } else {
             if (customSquareCursor) customSquareCursor.style.opacity = '1'; 
@@ -619,7 +619,13 @@
 
     function initTetris() {
         if (!ctx) return;
-        stopTetris();
+        
+        // インターバルを安全にクリア（isPausedの強制書き換えを避けるため直に処理）
+        if (gameInterval) {
+            clearInterval(gameInterval);
+            gameInterval = null;
+        }
+        
         board = [];
         for (let r = 0; r < ROW; r++) { board[r] = []; for (let c = 0; c < COL; c++) { board[r][c] = VACANT; } }
         score = 0; isGameOver = false; isPaused = false; 
@@ -632,7 +638,11 @@
     }
 
     function runTimer() {
-        stopTetris();
+        // 重複タイマーを作らないようインターバルのみをクリア
+        if (gameInterval) {
+            clearInterval(gameInterval);
+            gameInterval = null;
+        }
         gameInterval = setInterval(() => {
             if (!isPaused && !isGameOver) {
                 p.moveDown();
@@ -675,7 +685,7 @@
     document.getElementById("btn-pc-stop").addEventListener("click", () => { stopTetris(); });
 
     // Mobile Header System Buttons
-    document.getElementById("btn-header-start").addEventListener("click", () => { if(isGameOver || isPaused) { isPaused = false; runTimer(); } });
+    document.getElementById("btn-header-start").addEventListener("click", () => { if(isGameOver) { initTetris(); } else if(isPaused) { isPaused = false; runTimer(); } });
     document.getElementById("btn-header-stop").addEventListener("click", () => { stopTetris(); });
 
     // Mobile Virtual Controllers
