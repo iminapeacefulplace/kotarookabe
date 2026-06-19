@@ -123,16 +123,7 @@
             text-align: center;
             width: 100%;
             max-width: 600px;
-            /* 💡 最前面表示対応: 演出用画像や背景よりも手前に配置 */
-            z-index: 9999 !important;
-            pointer-events: auto !important;
-        }
-
-        /* 💡 各コンタクトアイテムも確実にクリック可能にする */
-        .contact-item {
-            position: relative;
-            z-index: 10000 !important;
-            pointer-events: auto !important;
+            z-index: 2;
         }
 
         /* 💡【修正】スマートフォン版：ヘッダー・ゲーム位置・十字キー被りの完全排除 */
@@ -293,7 +284,7 @@
                     <div class="gallery-slide"><img src="gallery-03.jpg" alt="作品3"><div class="work-title">「intermediation」</div></div>
                     <div class="gallery-slide"><img src="gallery-04.jpg" alt="作品4"><div class="work-title">「intermediation」</div></div>
                     <div class="gallery-slide"><img src="gallery-05.jpg" alt="作品5"><div class="work-title">「intermediation」</div></div>
-                    <div class="gallery-slide"><img src="gallery-06.jpg" alt="作品6"><div class="work-title">className</div></div>
+                    <div class="gallery-slide"><img src="gallery-06.jpg" alt="作品6"><div class="work-title">「intermediation」</div></div>
                     <div class="gallery-slide"><img src="gallery-07.jpg" alt="作品7"><div class="work-title">「intermediation」</div></div>
                     <div class="gallery-slide"><img src="gallery-08.jpg" alt="作品8"><div class="work-title">「intermediation」</div></div>
                     <div class="gallery-slide"><img src="gallery-09.jpg" alt="作品9"><div class="work-title">「intermediation」</div></div>
@@ -396,7 +387,7 @@
 
         </section>
 
-        <!-- Contact Section 💡【修正】インフォメーションを完全画面中央へ配置 ＆ 最前面固定 -->
+        <!-- Contact Section 💡【修正】インフォメーションを完全画面中央へ配置 -->
         <section id="contact" class="page">
             <div class="fullscreen-bg"><img src="main-contact.jpg" alt="Contactメイン画像"></div>
             <div class="content-box">
@@ -670,18 +661,86 @@
     function runTimer() {
         stopTetris();
         gameInterval = setInterval(() => {
-            if (!isPaused && !isGameOver) {
-                p.moveDown();
-            }
+            if (!isGameOver && !isPaused) p.moveDown();
         }, currentSpeed);
     }
 
-    function stopTetris() {
-        if (gameInterval) {
-            clearInterval(gameInterval);
-            gameInterval = null;
+    function stopTetris() { if (gameInterval) { clearInterval(gameInterval); gameInterval = null; } }
+
+    function actionStart() { if (isGameOver) { initTetris(); } isPaused = false; }
+    function actionStop() { isPaused = true; }
+    function togglePause() { if (isPaused) actionStart(); else actionStop(); }
+
+    const startElements = ["btn-pc-start", "btn-header-start"];
+    const stopElements = ["btn-pc-stop", "btn-header-stop"];
+
+    startElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('click', (e) => { e.preventDefault(); actionStart(); });
+    });
+    stopElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('click', (e) => { e.preventDefault(); actionStop(); });
+    });
+
+    // 難易度切り替え
+    const modeButtons = document.querySelectorAll('.mode-btn');
+    modeButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetSpeed = parseInt(btn.dataset.speed);
+            currentSpeed = targetSpeed;
+
+            modeButtons.forEach(b => {
+                if (parseInt(b.dataset.speed) === targetSpeed) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+
+            if (!isGameOver) { runTimer(); }
+        });
+    });
+
+    // キーボードスクロール標準イベントの解除
+    document.addEventListener("keydown", (e) => {
+        const gameSec = document.getElementById('game');
+        if (!gameSec || !gameSec.classList.contains('active')) return;
+        
+        if (e.key === " " || e.code === "Space") {
+            e.preventDefault();
+            togglePause();
+            return;
         }
-    }
-    </script>
+
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.key)) {
+            e.preventDefault(); 
+        }
+        
+        if (e.key.toLowerCase() === "p") { togglePause(); return; }
+        if (isGameOver || isPaused) return;
+
+        if (e.key === "ArrowLeft" || e.key === "a") { p.moveLeft(); }
+        else if (e.key === "ArrowUp" || e.key === "w" || e.key === "r") { p.rotate(); }
+        else if (e.key === "ArrowRight" || e.key === "d") { p.moveRight(); }
+        else if (e.key === "ArrowDown" || e.key === "s") { p.moveDown(); }
+    });
+
+    // スマホ用物理十字キー
+    const bindBtn = (id, action) => {
+        const el = document.getElementById(id);
+        if (el) {
+            const handler = (e) => { e.preventDefault(); e.stopPropagation(); if (p && !isGameOver && !isPaused) action(); };
+            el.addEventListener("click", handler); el.addEventListener("touchstart", handler);
+        }
+    };
+    bindBtn("btn-left", () => p.moveLeft());
+    bindBtn("btn-rotate", () => p.rotate());
+    bindBtn("btn-right", () => p.moveRight());
+    bindBtn("btn-down", () => p.moveDown());
+
+    window.addEventListener('load', () => {
+        const gameSection = document.getElementById('game');
+        if (gameSection && gameSection.classList.contains('active')) { initTetris(); }
+    });
+</script>
 </body>
 </html>
