@@ -214,9 +214,12 @@
                 align-items: flex-start !important;
             }
             body.is-game-page header nav {
-                position: static !important;
-                margin-top: 15px !important;
-                width: 100% !important;
+                position: fixed !important;
+                bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+                left: 24px !important; /* 左端寄せ（Kotaro Okabeの左端位置24pxと同期） */
+                right: auto !important;
+                margin-top: 0 !important;
+                width: auto !important;
             }
             body.is-game-page header nav ul {
                 display: flex !important;
@@ -253,37 +256,37 @@
                 margin: 0 auto;
             }
 
-            /* スマホ操作ボタン：右端寄せ＆十字型レイアウトへの変更 */
+            /* スマホ操作ボタン：右端寄せ＆凸型（十字）レイアウトへの変更 */
             .game-controls-mobile {
                 position: fixed !important;
                 bottom: calc(40px + env(safe-area-inset-bottom)) !important; 
-                right: 24px !important; /* 右端配置（オプションボタンの右端と揃う位置） */
+                right: 24px !important; /* 右端配置 */
                 left: auto !important;
                 transform: none !important;
                 display: grid !important;
                 grid-template-columns: repeat(3, 45px) !important;
-                grid-template-rows: repeat(3, 45px) !important;
+                grid-template-rows: repeat(2, 45px) !important; /* 2行の凸型に整理 */
                 gap: 5px !important;
                 z-index: 10000 !important;
                 width: auto !important;
             }
 
-            /* 各ボタンの十字グリッド位置割り当て */
+            /* 各ボタンの凸型（3つのキーとその真ん中の下に1つ）グリッド位置割り当て */
             .game-controls-mobile #btn-rotate {
                 grid-column: 2 !important;
                 grid-row: 1 !important;
             }
             .game-controls-mobile #btn-left {
                 grid-column: 1 !important;
-                grid-row: 2 !important;
+                grid-row: 1 !important;
             }
             .game-controls-mobile #btn-right {
                 grid-column: 3 !important;
-                grid-row: 2 !important;
+                grid-row: 1 !important;
             }
             .game-controls-mobile #btn-down {
                 grid-column: 2 !important;
-                grid-row: 3 !important;
+                grid-row: 2 !important; /* 3つのキーの真ん中（2列目）の下（2行目） */
             }
 
             /* 十字キーボタンの基本スタイル調整 */
@@ -455,8 +458,8 @@
                 </div>
 
                 <div class="game-controls-mobile">
-                    <button type="button" class="game-btn" id="btn-rotate">↑</button>
                     <button type="button" class="game-btn" id="btn-left">←</button>
+                    <button type="button" class="game-btn" id="btn-rotate">↻</button>
                     <button type="button" class="game-btn" id="btn-right">→</button>
                     <button type="button" class="game-btn" id="btn-down">↓</button>
                 </div>
