@@ -14,7 +14,7 @@
            ========================================== */
         :root {
             /* PC版のテトリス位置調整 */
-            --game-pc-top: 20px;         /* ヘッダー下からの距離 */
+            --game-pc-top: 15px;         /* ヘッダー下からの距離 */
             --game-pc-left-offset: 0px;  /* 左右の位置をずらしたい場合 (例: -50px で左、50px で右へ) */
             --sidebar-pc-right: 10%;     /* 右側操作パネルの画面右端からの距離 */
             --sidebar-pc-top: 80px;      /* 右側操作パネルの上からの距離 */
@@ -144,55 +144,20 @@
            スマートフォン版のレイアウト調整（768px以下）
            ========================================== */
         @media (max-width: 768px) {
-            header {
-                display: flex;
-                flex-direction: row;       /* 横並びに戻す */
-                justify-content: space-between;
-                align-items: center;
-                padding: 15px 20px;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                z-index: 100;
-                background: rgba(11, 11, 11, 0.8);
-                backdrop-filter: blur(10px);
-                box-sizing: border-box;
-            }
-
-            /* スマホ版：ナビゲーションメニューを右下に固定配置 */
-            nav {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                left: auto;
-                top: auto;
-                z-index: 101; /* 最前面に配置 */
-                background: rgba(11, 11, 11, 0.85);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                padding: 10px 15px;
-                backdrop-filter: blur(10px);
-            }
-            nav ul {
-                display: flex;
-                flex-direction: row; /* 横並びのメニュー項目 */
-                gap: 15px;
-                margin: 0;
-                padding: 0;
-                list-style: none;
-            }
-
             .header-mobile-controls {
-                display: none;
+                position: fixed;
+                top: calc(24px + env(safe-area-inset-top));
+                left: 160px; /* ロゴと被らない位置 */
+                display: flex;
                 gap: 6px;
-                margin-top: 0;
+                z-index: 10002;
             }
             .header-mobile-btn {
                 background: transparent;
                 color: rgba(255, 255, 255, 0.8);
                 border: 1px solid rgba(255, 255, 255, 0.3);
-                padding: 4px 10px;
-                font-size: 0.85rem;
+                padding: 4px 8px;
+                font-size: 0.7rem;
                 font-family: inherit;
                 letter-spacing: 0.05em;
                 cursor: pointer;
@@ -202,7 +167,6 @@
                 display: none !important;
             }
 
-            /* スマホ版：ゲーム画面位置調整（可変変数に対応） */
             .game-wrapper {
                 display: flex;
                 flex-direction: column;
@@ -218,18 +182,6 @@
                 transform: scale(var(--game-mobile-scale));
                 transform-origin: top center;
                 margin: 0 auto;
-            }
-
-            /* スマホ版テトリス操作ボタン（右下のメニューと被らないように左寄りに配置、または好みの位置へ） */
-            .game-controls-mobile {
-                position: fixed;
-                bottom: 30px;
-                left: 20px; /* 右下のメニューを避けるため左側に配置 */
-                transform: none;
-                display: flex;
-                justify-content: center;
-                gap: 10px;
-                z-index: 90;
             }
 
             .mobile-modal-overlay {
@@ -286,7 +238,7 @@
     <header>
         <div class="logo">Kotaro Okabe</div>
         
-        <div class="header-mobile-controls" id="mobile-header-actions">
+        <div class="header-mobile-controls" id="mobile-header-actions" style="display: none;">
             <button type="button" class="header-mobile-btn" id="btn-header-start">START</button>
             <button type="button" class="header-mobile-btn" id="btn-header-stop">STOP</button>
             <button type="button" class="header-mobile-btn" id="btn-header-option">OPTION</button>
@@ -517,6 +469,9 @@
         modalCloseBtn.addEventListener('click', (e) => { e.preventDefault(); mobileModal.classList.remove('show'); });
     }
 
+    // ==========================================
+    // TETRIS GAME ENGINE CORE LOGIC
+    // ==========================================
     const canvas = document.getElementById('tetris-canvas');
     const ctx = canvas ? canvas.getContext('2d') : null;
     const nextCanvas = document.getElementById('next-canvas');
@@ -667,7 +622,7 @@
         stopTetris();
         board = [];
         for (let r = 0; r < ROW; r++) { board[r] = []; for (let c = 0; c < COL; c++) { board[r][c] = VACANT; } }
-        score = 0; isGameOver = false; isPaused = true; 
+        score = 0; isGameOver = false; isPaused = false; 
         if (scoreElement) scoreElement.innerText = score;
         if (gameOverText) gameOverText.style.display = "none";
         drawBoard();
@@ -690,7 +645,68 @@
             clearInterval(gameInterval);
             gameInterval = null;
         }
+        isPaused = true;
     }
+
+    // ==========================================
+    // CONTROLS & BINDINGS (PC & MOBILE)
+    // ==========================================
+    // PC Keyboard Controls
+    document.addEventListener("keydown", (e) => {
+        const gameSection = document.getElementById("game");
+        if (!gameSection || !gameSection.classList.contains("active") || isGameOver) return;
+
+        if (e.key === " " || e.code === "Space") {
+            e.preventDefault();
+            if (isPaused) { isPaused = false; runTimer(); } else { stopTetris(); }
+            return;
+        }
+
+        if (isPaused) return;
+
+        if (e.key === "ArrowLeft") { e.preventDefault(); p.moveLeft(); }
+        else if (e.key === "ArrowUp") { e.preventDefault(); p.rotate(); }
+        else if (e.key === "ArrowRight") { e.preventDefault(); p.moveRight(); }
+        else if (e.key === "ArrowDown") { e.preventDefault(); p.moveDown(); }
+    });
+
+    // PC System Buttons
+    document.getElementById("btn-pc-start").addEventListener("click", () => { initTetris(); });
+    document.getElementById("btn-pc-stop").addEventListener("click", () => { stopTetris(); });
+
+    // Mobile Header System Buttons
+    document.getElementById("btn-header-start").addEventListener("click", () => { if(isGameOver || isPaused) { isPaused = false; runTimer(); } });
+    document.getElementById("btn-header-stop").addEventListener("click", () => { stopTetris(); });
+
+    // Mobile Virtual Controllers
+    document.getElementById("btn-left").addEventListener("click", () => { if (!isPaused && !isGameOver) p.moveLeft(); });
+    document.getElementById("btn-rotate").addEventListener("click", () => { if (!isPaused && !isGameOver) p.rotate(); });
+    document.getElementById("btn-right").addEventListener("click", () => { if (!isPaused && !isGameOver) p.moveRight(); });
+    document.getElementById("btn-down").addEventListener("click", () => { if (!isPaused && !isGameOver) p.moveDown(); });
+
+    // Difficulty Settings Handling (PC & Mobile)
+    const modeButtons = document.querySelectorAll(".mode-btn");
+    modeButtons.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            modeButtons.forEach(b => b.classList.remove("active"));
+            const targetSpeed = parseInt(btn.getAttribute("data-speed"), 10);
+            
+            // 同一難易度の全ボタンの状態を同期
+            modeButtons.forEach(b => {
+                if (parseInt(b.getAttribute("data-speed"), 10) === targetSpeed) {
+                    b.classList.add("active");
+                }
+            });
+
+            currentSpeed = targetSpeed;
+            if (!isPaused && !isGameOver) {
+                runTimer();
+            }
+            
+            // モバイル用モーダルが開いている場合は自動で閉じる
+            if (mobileModal) mobileModal.classList.remove("show");
+        });
+    });
     </script>
 </body>
 </html>
