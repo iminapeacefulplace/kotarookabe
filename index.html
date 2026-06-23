@@ -18,7 +18,7 @@
             --sidebar-pc-top: 80px;      
 
             --game-mobile-top: 20px;     
-            --game-mobile-scale: 0.98;   /* スマートフォンの画面サイズギリギリまで拡張 */
+            --game-mobile-scale: 0.98;   
         }
 
         html, body {
@@ -173,7 +173,7 @@
         .clear-modal-overlay {
             position: absolute;
             top: 12px;
-            left: 122px; /* サイドパネルの横幅を考慮してキャンバス上に配置 */
+            left: 122px; 
             width: 600px;
             height: 480px;
             background: rgba(4, 4, 7, 0.85);
@@ -210,7 +210,7 @@
             color: #22ee22;
         }
 
-        /* スマホ用全幅拡張調整 */
+        /* スマホ用全幅拡張と表示制御の最適化 */
         @media (max-width: 768px) {
             header {
                 position: fixed !important;
@@ -302,24 +302,54 @@
                 overflow: hidden;
             }
 
-            .game-container, .shooting-container {
+            .game-container {
                 transform: scale(var(--game-mobile-scale));
                 transform-origin: top center;
                 margin: 0 auto;
-                width: 100% !important; /* 左右サイズ限界まで拡張 */
+                width: 100% !important; 
                 max-width: 720px;
             }
-            
+
+            /* スマホでシューティング画面を最適化するためのスタイル */
             .shooting-container {
-                flex-direction: row !important; 
-                padding: 6px !important;
-                gap: 6px !important;
+                flex-direction: column !important; /* ステータスと画面を縦に並べる */
+                align-items: center !important;
+                justify-content: center !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                padding: 10px !important;
+                gap: 10px !important;
+                box-sizing: border-box !important;
+                transform: none !important; /* スケールを解除して画面いっぱいに */
+            }
+
+            .shooting-side-panel-left {
+                flex-direction: row !important; /* ステータスを横並びに */
+                width: 100% !important;
+                justify-content: space-around !important;
+                gap: 5px !important;
+                margin-bottom: 5px !important;
+                padding-top: calc(50px + env(safe-area-inset-top)) !important;
+            }
+
+            .shooting-side-panel-left .panel-section {
+                align-items: center !important;
+            }
+
+            #shooting-canvas {
+                width: 100% !important;
+                max-width: 100vw !important;
+                height: auto !important;
+                max-height: 70vh !important;
             }
 
             .clear-modal-overlay {
-                left: 107px; /* モバイルスケール時の微調整 */
-                width: calc(100% - 115px);
-                height: calc(100% - 12px);
+                left: 5% !important; 
+                width: 90% !important;
+                height: auto !important;
+                padding: 40px 20px !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
             }
 
             .game-controls-mobile {
@@ -452,7 +482,6 @@
                     </div>
                     <canvas id="shooting-canvas" width="600" height="480"></canvas>
 
-                    <!-- 新設：ステージクリア・コンテニュー確認モーダル -->
                     <div class="clear-modal-overlay" id="shooting-clear-modal">
                         <div class="clear-modal-title">STAGE CLEAR</div>
                         <button type="button" class="clear-modal-btn" id="btn-next-stage">CONTINUE TO NEXT STAGE</button>
@@ -539,7 +568,7 @@
 
     let isHoveringMenu = false;
     let currentSlideIndex = 0; 
-    const totalSlides = 21;    
+    const totalSlides = 20;    
     let lastMouseX = 0;        
     let activeGameMode = 'tetris';
 
@@ -779,8 +808,8 @@
     let sScore = 0; let sLives = 3; let sStage = 1;
     let sIsGameOver = false; let sIsPaused = true;
 
-    // 【修正】playerオブジェクトに見た目の大きさ(w, h)とは別に、当たり判定用の極小の大きさ(hitW, hitH)を新設
-    let player = { x: 285, y: 410, w: 20, h: 20, hitW: 20, hitH: 20, speed: 7.5 };
+    // 自機の当たり判定コアの縮小 (hitW:6, hitH:6)
+    let player = { x: 285, y: 410, w: 32, h: 32, hitW: 6, hitH: 6, speed: 7.5 };
     let bullets = [];      
     let enemyBullets = []; 
     let enemies = [];
@@ -827,7 +856,7 @@
         ctx.closePath();
         ctx.fill();
 
-        // コア（判定の大きさ）を視覚的に確認できるようにドットを描画（不要なら削除してください）
+        // コア（判定の大きさ）を視覚的に確認できるよう赤ドットを描画
         if (!isEnemy && !isOptionShip) {
             ctx.fillStyle = '#ff0055';
             ctx.fillRect(x + w/2 - player.hitW/2, y + h/2 - player.hitH/2, player.hitW, player.hitH);
@@ -883,7 +912,7 @@
             sCtx.beginPath(); sCtx.moveTo(0, goalY); sCtx.lineTo(600, goalY); sCtx.stroke();
             sCtx.fillStyle = '#22ee22'; sCtx.font = '11px monospace'; sCtx.fillText("=== GOAL LINE ===", 245, goalY - 10);
 
-            // 【修正】自機がゴールラインを超えた際、自動移行せず「STAGE CLEAR」の選択モーダルを表示する
+            // 自機がゴールラインを超えた際、自動移行せず「STAGE CLEAR」の選択モーダルを表示する
             if (player.y <= goalY + 4) {
                 stopShooting();
                 if (sStage < 30) {
@@ -952,7 +981,7 @@
             });
         }
 
-        // 自機の極小中心判定の計算用変数
+        // 自機の極小中心判定の計算
         let pCenterX = player.x + player.w / 2;
         let pCenterY = player.y + player.h / 2;
         let pHitX = pCenterX - player.hitW / 2;
@@ -969,7 +998,7 @@
                 e.shootTimer = Math.random() * 75 + 45 - (sStage * 1.2);
             }
 
-            // 【修正】敵機との接触判定を自機の極小判定(pHitX, pHitY, hitW, hitH)基準に変更
+            // 敵機との接触判定 (極小判定基準)
             if (e.x < pHitX + player.hitW && e.x + e.w > pHitX && e.y < pHitY + player.hitH && e.y + e.h > pHitY) {
                 enemies.splice(eIdx, 1); sLives--; updateShootingUI(); checkGameOver();
             }
@@ -997,7 +1026,7 @@
             sCtx.fillStyle = '#000000'; sCtx.font = 'bold 9px sans-serif';
             sCtx.fillText(it.type, it.x - 3, it.y + 3);
 
-            // 【修正】アイテム獲得判定も自機の極小判定基準に変更
+            // アイテム獲得判定 (極小判定基準)
             if (it.x > pHitX && it.x < pHitX + player.hitW && it.y > pHitY && it.y < pHitY + player.hitH) {
                 if (it.type === 'W') { currentWeapon = '3WAY'; }
                 else if (it.type === 'S') { currentWeapon = 'FAST'; }
@@ -1015,7 +1044,7 @@
             eb.y += eb.dy;
             sCtx.fillRect(eb.x - 1, eb.y, 2, 8);
 
-            // 【修正】敵の弾との接触判定を自機の極小判定基準に変更
+            // 敵の弾との接触判定 (極小判定基準)
             if (eb.x < pHitX + player.hitW && eb.x > pHitX && eb.y < pHitY + player.hitH && eb.y + 8 > pHitY) {
                 enemyBullets.splice(ebIdx, 1); sLives--; updateShootingUI(); checkGameOver();
             }
@@ -1025,7 +1054,7 @@
         sAnimationId = requestAnimationFrame(shootingLoop);
     }
 
-    // 新設：コンテニューボタンを押したときのステージ進捗処理
+    // コンテニューボタンを押したときのステージ進捗処理
     if (btnNextStage) {
         btnNextStage.addEventListener('click', () => {
             if (sClearModal) sClearModal.style.display = 'none';
@@ -1060,22 +1089,26 @@
         const tetrisGuide = document.getElementById('tetris-controls-guide');
         const shootingGuide = document.getElementById('shooting-controls-guide');
         const tetrisMobileArrows = document.getElementById('tetris-mobile-arrows');
+        const rightSidebar = document.querySelector('.game-sidebar-right');
 
+        // !importantを用いて外部CSSの干渉を確実に防ぐ
         if (mode === 'shooting') {
-            if(tetrisView) tetrisView.style.display = 'none';
-            if(shootingView) shootingView.style.display = 'flex';
-            if(tetrisGuide) tetrisGuide.style.display = 'none';
-            if(shootingGuide) shootingGuide.style.display = 'flex';
+            if(tetrisView) tetrisView.style.setProperty('display', 'none', 'important');
+            if(shootingView) shootingView.style.setProperty('display', 'flex', 'important');
+            if(tetrisGuide) tetrisGuide.style.setProperty('display', 'none', 'important');
+            if(shootingGuide) shootingGuide.style.setProperty('display', 'flex', 'important');
             if(tetrisMobileArrows) tetrisMobileArrows.style.setProperty('display', 'none', 'important');
+            
             document.getElementById('btn-pc-shooting-toggle').style.background = 'rgba(255,255,255,0.2)';
             document.getElementById('btn-mobile-shooting-toggle').style.background = 'rgba(255,255,255,0.2)';
             initShooting();
         } else {
-            if(tetrisView) tetrisView.style.display = 'flex';
-            if(shootingView) shootingView.style.display = 'none';
-            if(tetrisGuide) tetrisGuide.style.display = 'flex';
-            if(shootingGuide) shootingGuide.style.display = 'none';
-            if(tetrisMobileArrows) tetrisMobileArrows.style.removeAttribute('style');
+            if(tetrisView) tetrisView.style.setProperty('display', 'flex', 'important');
+            if(shootingView) shootingView.style.setProperty('display', 'none', 'important');
+            if(tetrisGuide) tetrisGuide.style.setProperty('display', 'flex', 'important');
+            if(shootingGuide) shootingGuide.style.setProperty('display', 'none', 'important');
+            if(tetrisMobileArrows) tetrisMobileArrows.style.setProperty('display', 'grid', 'important');
+
             document.getElementById('btn-pc-shooting-toggle').style.background = 'transparent';
             document.getElementById('btn-mobile-shooting-toggle').style.background = 'transparent';
             initTetris();
@@ -1085,17 +1118,16 @@
     document.getElementById('btn-pc-shooting-toggle').addEventListener('click', () => { switchGameMode(activeGameMode === 'tetris' ? 'shooting' : 'tetris'); });
     document.getElementById('btn-mobile-shooting-toggle').addEventListener('click', () => { switchGameMode(activeGameMode === 'tetris' ? 'shooting' : 'tetris'); });
 
-    // 【PC版新機能】トラックパッドおよびマウスの移動追従コントロール
+    // トラックパッドおよびマウスの移動追従コントロール
     if (sCanvas) {
         sCanvas.addEventListener('mousemove', (e) => {
             if (sIsPaused || sIsGameOver) return;
             let rect = sCanvas.getBoundingClientRect();
             let mouseX = e.clientX - rect.left;
-            let canvasMouseX = mouseX * (600 / rect.width); // 横幅600pxスケールに正確にマッピング
+            let canvasMouseX = mouseX * (600 / rect.width); 
             player.x = Math.max(5, Math.min(563, canvasMouseX - player.w / 2));
         });
 
-        // モバイル環境用のタッチスワイプ追従
         sCanvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
             if (sIsPaused || sIsGameOver) return;
