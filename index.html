@@ -566,6 +566,12 @@
     </main>
 
     <script>
+    // ==========================================================================
+    // ⚙️【ゲーム機能切り替えスイッチ】
+    // ==========================================================================
+    // ゲームを完全に非表示にしたい場合は 「false」、復活させたい場合は 「true」 にしてください。
+    const ENABLE_GAME = false; 
+
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     const customSquareCursor = document.querySelector('.custom-square-cursor');
@@ -582,14 +588,41 @@
     let lastMouseX = 0;        
     let activeGameMode = 'tetris';
 
+    // スイッチがfalse（オフ）の時の非表示・無効化処理
+    if (!ENABLE_GAME) {
+        // メニューの「Game」ボタンを消す
+        const gameMenuLink = document.querySelector('.nav-link[data-target="game"]');
+        if (gameMenuLink && gameMenuLink.parentElement) {
+            gameMenuLink.parentElement.style.display = 'none';
+        }
+        // メニューホバー時の「Game演出画像」を消す
+        const gameOverlay = document.getElementById('overlay-game');
+        if (gameOverlay) {
+            gameOverlay.style.display = 'none';
+        }
+        // ゲーム画面セクション自体も非表示化
+        const gameSection = document.getElementById('game');
+        if (gameSection) {
+            gameSection.style.display = 'none';
+        }
+    }
+
     navLinks.forEach(link => {
         const targetId = link.getAttribute('data-target');
         const targetOverlay = document.getElementById(`overlay-${targetId}`);
 
-        link.addEventListener('mouseenter', () => { if (targetOverlay) targetOverlay.classList.add('show'); });
-        link.addEventListener('mouseleave', () => { if (targetOverlay) targetOverlay.classList.remove('show'); });
+        link.addEventListener('mouseenter', () => { 
+            if (targetId === 'game' && !ENABLE_GAME) return;
+            if (targetOverlay) targetOverlay.classList.add('show'); 
+        });
+        link.addEventListener('mouseleave', () => { 
+            if (targetId === 'game' && !ENABLE_GAME) return;
+            if (targetOverlay) targetOverlay.classList.remove('show'); 
+        });
         link.addEventListener('click', (e) => {
             e.preventDefault();
+            if (targetId === 'game' && !ENABLE_GAME) return; // オフの時はクリックしても遷移させない
+
             navLinks.forEach(nav => nav.classList.remove('active'));
             link.classList.add('active');
             pages.forEach(page => page.classList.remove('active'));
@@ -792,7 +825,7 @@
         }
     }
     function initTetris() {
-        if (!ctx) return; stopShooting(); if (gameInterval) { clearInterval(gameInterval); gameInterval = null; }
+        if (!ctx || !ENABLE_GAME) return; stopShooting(); if (gameInterval) { clearInterval(gameInterval); gameInterval = null; }
         board = []; for (let r = 0; r < ROW; r++) { board[r] = []; for (let c = 0; c < COL; c++) { board[r][c] = VACANT; } }
         score = 0; isGameOver = false; isPaused = false; if (scoreElement) scoreElement.innerText = score; if (gameOverText) gameOverText.style.display = "none";
         if (btnHeaderToggle) btnHeaderToggle.innerText = "⏸"; drawBoard(); refillBag(); p = randomPiece(); nextP = randomPiece(); p.draw(ctx); drawNext(); runTimer();
@@ -818,7 +851,6 @@
     let sScore = 0; let sLives = 3; let sStage = 1;
     let sIsGameOver = false; let sIsPaused = true;
 
-    // 自機の当たり判定コアの極小設定 (hitW:6, hitH:6)
     let player = { x: 285, y: 410, w: 32, h: 32, hitW: 6, hitH: 6, speed: 7.5 };
     let bullets = [];      
     let enemyBullets = []; 
@@ -866,7 +898,6 @@
         ctx.closePath();
         ctx.fill();
 
-        // 判定コアを視覚化（不要なら削除可）
         if (!isEnemy && !isOptionShip) {
             ctx.fillStyle = '#ff0055';
             ctx.fillRect(x + w/2 - player.hitW/2, y + h/2 - player.hitH/2, player.hitW, player.hitH);
@@ -874,6 +905,7 @@
     }
 
     function initShooting() {
+        if (!ENABLE_GAME) return;
         stopTetris();
         if (sAnimationId) cancelAnimationFrame(sAnimationId);
         sScore = 0; sLives = 3; sStage = 1; enemyKillsInStage = 0;
@@ -901,7 +933,7 @@
     }
 
     function shootingLoop() {
-        if (sIsPaused || sIsGameOver) return;
+        if (sIsPaused || sIsGameOver || !ENABLE_GAME) return;
 
         sCtx.fillStyle = '#040407'; sCtx.fillRect(0, 0, 600, 480);
 
@@ -922,7 +954,6 @@
             sCtx.beginPath(); sCtx.moveTo(0, goalY); sCtx.lineTo(600, goalY); sCtx.stroke();
             sCtx.fillStyle = '#22ee22'; sCtx.font = '11px monospace'; sCtx.fillText("=== GOAL LINE ===", 245, goalY - 10);
 
-            // 自機がゴールラインを超えた際、自動移行せず「STAGE CLEAR」の選択モーダルを表示する
             if (player.y <= goalY + 4) {
                 stopShooting();
                 if (sStage < 30) {
@@ -991,7 +1022,6 @@
             });
         }
 
-        // 自機の極小中心判定の計算
         let pCenterX = player.x + player.w / 2;
         let pCenterY = player.y + player.h / 2;
         let pHitX = pCenterX - player.hitW / 2;
@@ -1008,7 +1038,6 @@
                 e.shootTimer = Math.random() * 75 + 45 - (sStage * 1.2);
             }
 
-            // 敵機との接触判定 (極小判定基準)
             if (e.x < pHitX + player.hitW && e.x + e.w > pHitX && e.y < pHitY + player.hitH && e.y + e.h > pHitY) {
                 enemies.splice(eIdx, 1); sLives--; updateShootingUI(); checkGameOver();
             }
@@ -1036,7 +1065,6 @@
             sCtx.fillStyle = '#000000'; sCtx.font = 'bold 9px sans-serif';
             sCtx.fillText(it.type, it.x - 3, it.y + 3);
 
-            // アイテム獲得判定 (極小判定基準)
             if (it.x > pHitX && it.x < pHitX + player.hitW && it.y > pHitY && it.y < pHitY + player.hitH) {
                 if (it.type === 'W') { currentWeapon = '3WAY'; }
                 else if (it.type === 'S') { currentWeapon = 'FAST'; }
@@ -1054,7 +1082,6 @@
             eb.y += eb.dy;
             sCtx.fillRect(eb.x - 1, eb.y, 2, 8);
 
-            // 敵の弾との接触判定 (極小判定基準)
             if (eb.x < pHitX + player.hitW && eb.x > pHitX && eb.y < pHitY + player.hitH && eb.y + 8 > pHitY) {
                 enemyBullets.splice(ebIdx, 1); sLives--; updateShootingUI(); checkGameOver();
             }
@@ -1064,7 +1091,6 @@
         sAnimationId = requestAnimationFrame(shootingLoop);
     }
 
-    // コンテニューボタンを押したときのステージ進捗処理
     if (btnNextStage) {
         btnNextStage.addEventListener('click', () => {
             if (sClearModal) sClearModal.style.display = 'none';
@@ -1093,6 +1119,7 @@
     }
 
     function switchGameMode(mode) {
+        if (!ENABLE_GAME) return;
         activeGameMode = mode;
         const tetrisView = document.getElementById('tetris-view');
         const shootingView = document.getElementById('shooting-view');
@@ -1126,10 +1153,9 @@
     document.getElementById('btn-pc-shooting-toggle').addEventListener('click', () => { switchGameMode(activeGameMode === 'tetris' ? 'shooting' : 'tetris'); });
     document.getElementById('btn-mobile-shooting-toggle').addEventListener('click', () => { switchGameMode(activeGameMode === 'tetris' ? 'shooting' : 'tetris'); });
 
-    // トラックパッドおよびマウスの移動追従コントロール
     if (sCanvas) {
         sCanvas.addEventListener('mousemove', (e) => {
-            if (sIsPaused || sIsGameOver) return;
+            if (sIsPaused || sIsGameOver || !ENABLE_GAME) return;
             let rect = sCanvas.getBoundingClientRect();
             let mouseX = e.clientX - rect.left;
             let canvasMouseX = mouseX * (600 / rect.width); 
@@ -1138,7 +1164,7 @@
 
         sCanvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
-            if (sIsPaused || sIsGameOver) return;
+            if (sIsPaused || sIsGameOver || !ENABLE_GAME) return;
             let rect = sCanvas.getBoundingClientRect();
             let touchX = e.touches[0].clientX - rect.left;
             let canvasTouchX = touchX * (600 / rect.width);
@@ -1146,10 +1172,9 @@
         }, { passive: false });
     }
 
-    // キーボードリスナー
     document.addEventListener("keydown", (e) => {
         const gameSection = document.getElementById("game");
-        if (!gameSection || !gameSection.classList.contains("active")) return;
+        if (!gameSection || !gameSection.classList.contains("active") || !ENABLE_GAME) return;
 
         if (e.key === " " || e.code === "Space") {
             e.preventDefault();
@@ -1181,6 +1206,7 @@
 
     if (btnHeaderToggle) {
         btnHeaderToggle.addEventListener("click", () => {
+            if (!ENABLE_GAME) return;
             if (activeGameMode === 'tetris') {
                 if (isGameOver) initTetris();
                 else if (isPaused) { isPaused = false; btnHeaderToggle.innerText = "⏸"; runTimer(); } else stopTetris();
@@ -1193,8 +1219,8 @@
 
     let mobileHoldTimer = null; let mobileHoldInterval = null;
     function startButtonHold(actionFunction) {
-        if (isPaused || isGameOver) return; actionFunction();
-        mobileHoldTimer = setTimeout(() => { mobileHoldInterval = setInterval(() => { if (!isPaused && !isGameOver) actionFunction(); }, 60); }, 200);
+        if (isPaused || isGameOver || !ENABLE_GAME) return; actionFunction();
+        mobileHoldTimer = setTimeout(() => { mobileHoldInterval = setInterval(() => { if (!isPaused && !isGameOver && ENABLE_GAME) actionFunction(); }, 60); }, 200);
     }
     function clearButtonHold() { if (mobileHoldTimer) clearTimeout(mobileHoldTimer); if (mobileHoldInterval) clearInterval(mobileHoldInterval); }
 
@@ -1207,7 +1233,7 @@
     const downBtn = document.getElementById("btn-down");
     downBtn.addEventListener("mousedown", () => startButtonHold(() => p.moveDown()));
     downBtn.addEventListener("touchstart", (e) => { e.preventDefault(); startButtonHold(() => p.moveDown()); });
-    document.getElementById("btn-rotate").addEventListener("click", () => { if (!isPaused && !isGameOver) p.rotate(); });
+    document.getElementById("btn-rotate").addEventListener("click", () => { if (!isPaused && !isGameOver && ENABLE_GAME) p.rotate(); });
 
     window.addEventListener("mouseup", clearButtonHold); window.addEventListener("touchend", clearButtonHold); window.addEventListener("touchcancel", clearButtonHold);
 
@@ -1218,7 +1244,7 @@
             const targetSpeed = parseInt(btn.getAttribute("data-speed"), 10);
             modeButtons.forEach(b => { if (parseInt(b.getAttribute("data-speed"), 10) === targetSpeed) b.classList.add("active"); });
             currentSpeed = targetSpeed;
-            if (activeGameMode === 'tetris' && !isPaused && !isGameOver) runTimer();
+            if (activeGameMode === 'tetris' && !isPaused && !isGameOver && ENABLE_GAME) runTimer();
             if (mobileModal) mobileModal.classList.remove("show");
         });
     });
